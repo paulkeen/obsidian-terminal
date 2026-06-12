@@ -1,0 +1,653 @@
+/* ==========================================================================
+   TERMINAL  —  a retro CRT / CLI theme for Obsidian
+   --------------------------------------------------------------------------
+   Dark phosphor background, green monospace text, sharp corners, scanlines
+   and a subtle bloom — built on Obsidian's native CSS-variable system so it
+   stays compatible with core + community plugins (the "Minimal" philosophy).
+
+   Structure:
+     1.  Style Settings block (in-app toggles via the Style Settings plugin)
+     2.  Core palette  (--term-* intermediate variables)
+     3.  Phosphor schemes (green / amber / cyan / paper-white)
+     4.  Mapping --term-* onto Obsidian's semantic variables
+     5.  Typography
+     6.  Component styling (headings, links, code, tables, callouts, …)
+     7.  Chrome (sidebars, tabs, status bar, scrollbars, ribbon)
+     8.  CRT effects (scanlines, vignette, bloom, block caret)
+   ========================================================================== */
+
+
+/* ==========================================================================
+   1.  STYLE SETTINGS
+   Install the "Style Settings" community plugin to get these toggles under
+   Settings → Style Settings → Terminal. Everything works without it too;
+   these just expose the defaults baked in below.
+   ========================================================================== */
+/* @settings
+
+name: Terminal
+id: terminal-theme
+settings:
+  -
+    id: terminal-look
+    title: Look & feel
+    type: heading
+    level: 1
+    collapsed: false
+  -
+    id: terminal-phosphor
+    title: Phosphor colour
+    description: The monitor you are pretending to own.
+    type: class-select
+    allowEmpty: false
+    default: terminal-green
+    options:
+      -
+        label: Green (P1 phosphor)
+        value: terminal-green
+      -
+        label: Amber (P3 phosphor)
+        value: terminal-amber
+      -
+        label: Cyan
+        value: terminal-cyan
+      -
+        label: Paper-white (VT220)
+        value: terminal-white
+  -
+    id: terminal-scanlines
+    title: CRT scanlines
+    description: Horizontal scanline overlay plus a faint vignette.
+    type: class-toggle
+    default: true
+  -
+    id: terminal-glow
+    title: Phosphor bloom
+    description: Soft text-shadow glow on headings, links and accents.
+    type: class-toggle
+    default: true
+  -
+    id: terminal-flicker
+    title: Screen flicker
+    description: Very subtle brightness flicker. Off by default; it can distract.
+    type: class-toggle
+    default: false
+  -
+    id: terminal-prompts
+    title: Heading prompts
+    description: Prefix reading-view headings with a > shell prompt.
+    type: class-toggle
+    default: true
+  -
+    id: terminal-block-caret
+    title: Block cursor
+    description: Fat blinking block caret in the editor, like a real terminal.
+    type: class-toggle
+    default: true
+  -
+    id: terminal-prop-body
+    title: Proportional body font
+    description: Switch note body text from monospace to a normal sans font.
+    type: class-toggle
+    default: false
+  -
+    id: terminal-typography
+    title: Typography
+    type: heading
+    level: 1
+    collapsed: true
+  -
+    id: --term-mono-font
+    title: Monospace font
+    description: Used for body text, code and the UI.
+    type: variable-text
+    default: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'SF Mono', Menlo, Consolas, monospace"
+  -
+    id: --term-body-size
+    title: Body font size
+    type: variable-number-slider
+    default: 16
+    min: 12
+    max: 22
+    step: 1
+    format: px
+  -
+    id: --term-radius
+    title: Corner radius
+    description: 0 is the true terminal experience.
+    type: variable-number-slider
+    default: 0
+    min: 0
+    max: 14
+    step: 1
+    format: px
+  -
+    id: --term-scanline-opacity
+    title: Scanline intensity
+    type: variable-number-slider
+    default: 0.22
+    min: 0
+    max: 0.6
+    step: 0.02
+*/
+
+
+/* ==========================================================================
+   2.  CORE PALETTE  (defaults = green phosphor)
+   ========================================================================== */
+.theme-dark {
+  --term-bg:          #0a0e0a;   /* main screen black, faint green cast      */
+  --term-bg-alt:      #070b07;   /* sidebars / deeper surfaces               */
+  --term-bg-raised:   #0e150e;   /* hovers, code, raised panels              */
+  --term-border:      #18301c;   /* hairline rules                           */
+  --term-border-hi:   #2c5740;   /* brighter rules / focus                   */
+
+  --term-fg:          #6ee787;   /* body text  (soft phosphor)               */
+  --term-fg-bright:   #28ff8a;   /* headings, links, accents (hot phosphor)  */
+  --term-fg-dim:      #4f9c69;   /* muted text                               */
+  --term-fg-faint:    #2c5740;   /* faint text, guides                       */
+  --term-glow:        rgba(40, 255, 138, 0.55);
+  --term-selection:   rgba(40, 255, 138, 0.18);
+  --term-highlight:   rgba(40, 255, 138, 0.30);
+
+  /* drives the native accent system (graph, sliders, toggles, etc.) */
+  --accent-h: 147;
+  --accent-s: 100%;
+  --accent-l: 58%;
+
+  /* knobs exposed to Style Settings */
+  --term-mono-font: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'SF Mono', Menlo, Consolas, monospace;
+  --term-body-size: 16px;
+  --term-radius: 0px;
+  --term-scanline-opacity: 0.22;
+}
+
+
+/* ==========================================================================
+   3.  PHOSPHOR SCHEMES
+   class-select adds one of these to <body>. Green = baseline (above).
+   ========================================================================== */
+body.terminal-green {
+  --term-bg: #0a0e0a;  --term-bg-alt: #070b07;  --term-bg-raised: #0e150e;
+  --term-border: #18301c;  --term-border-hi: #2c5740;
+  --term-fg: #6ee787;  --term-fg-bright: #28ff8a;  --term-fg-dim: #4f9c69;  --term-fg-faint: #2c5740;
+  --term-glow: rgba(40, 255, 138, 0.55);
+  --term-selection: rgba(40, 255, 138, 0.18);  --term-highlight: rgba(40, 255, 138, 0.30);
+  --accent-h: 147; --accent-s: 100%; --accent-l: 58%;
+}
+
+body.terminal-amber {
+  --term-bg: #0e0a04;  --term-bg-alt: #0a0703;  --term-bg-raised: #15100a;
+  --term-border: #3a2a10;  --term-border-hi: #5c4620;
+  --term-fg: #e8a850;  --term-fg-bright: #ffc66d;  --term-fg-dim: #9c7430;  --term-fg-faint: #5c4620;
+  --term-glow: rgba(255, 176, 84, 0.55);
+  --term-selection: rgba(255, 176, 84, 0.18);  --term-highlight: rgba(255, 176, 84, 0.30);
+  --accent-h: 38; --accent-s: 100%; --accent-l: 65%;
+}
+
+body.terminal-cyan {
+  --term-bg: #050e0e;  --term-bg-alt: #030a0a;  --term-bg-raised: #0a1616;
+  --term-border: #143030;  --term-border-hi: #2c5757;
+  --term-fg: #5fd7d7;  --term-fg-bright: #2ee6e6;  --term-fg-dim: #3f9c9c;  --term-fg-faint: #2c5757;
+  --term-glow: rgba(46, 230, 230, 0.55);
+  --term-selection: rgba(46, 230, 230, 0.18);  --term-highlight: rgba(46, 230, 230, 0.30);
+  --accent-h: 180; --accent-s: 78%; --accent-l: 55%;
+}
+
+body.terminal-white {
+  --term-bg: #08090a;  --term-bg-alt: #050607;  --term-bg-raised: #101213;
+  --term-border: #232629;  --term-border-hi: #3a3f44;
+  --term-fg: #c9d4cc;  --term-fg-bright: #ffffff;  --term-fg-dim: #7e8a82;  --term-fg-faint: #4a534d;
+  --term-glow: rgba(220, 235, 225, 0.45);
+  --term-selection: rgba(220, 235, 225, 0.16);  --term-highlight: rgba(220, 235, 225, 0.26);
+  --accent-h: 150; --accent-s: 12%; --accent-l: 82%;
+}
+
+
+/* ==========================================================================
+   4.  MAP --term-* ONTO OBSIDIAN'S SEMANTIC VARIABLES
+   This is what keeps the theme compatible with everything else.
+   ========================================================================== */
+.theme-dark {
+  /* base palette — most semantic vars derive from these */
+  --color-base-00: var(--term-bg);
+  --color-base-05: var(--term-bg-alt);
+  --color-base-10: var(--term-bg-raised);
+  --color-base-20: var(--term-border);
+  --color-base-25: var(--term-border);
+  --color-base-30: var(--term-border-hi);
+  --color-base-35: var(--term-border-hi);
+  --color-base-40: var(--term-fg-faint);
+  --color-base-50: var(--term-fg-dim);
+  --color-base-60: var(--term-fg-dim);
+  --color-base-70: var(--term-fg);
+  --color-base-100: var(--term-fg-bright);
+
+  /* backgrounds */
+  --background-primary: var(--term-bg);
+  --background-primary-alt: var(--term-bg-raised);
+  --background-secondary: var(--term-bg-alt);
+  --background-secondary-alt: var(--term-bg);
+  --background-modifier-hover: rgba(127, 227, 140, 0.06);
+  --background-modifier-active-hover: var(--term-selection);
+  --background-modifier-border: var(--term-border);
+  --background-modifier-border-hover: var(--term-border-hi);
+  --background-modifier-border-focus: var(--term-fg-bright);
+  --background-modifier-form-field: var(--term-bg-alt);
+  --background-modifier-flair: var(--term-fg-bright);
+
+  /* text */
+  --text-normal: var(--term-fg);
+  --text-muted: var(--term-fg-dim);
+  --text-faint: var(--term-fg-faint);
+  --text-accent: var(--term-fg-bright);
+  --text-accent-hover: var(--term-fg-bright);
+  --text-on-accent: var(--term-bg);
+  --text-selection: var(--term-selection);
+  --text-highlight-bg: var(--term-highlight);
+  --caret-color: var(--term-fg-bright);
+
+  /* interactive / accent */
+  --interactive-normal: var(--term-bg-raised);
+  --interactive-hover: var(--term-border);
+  --interactive-accent: var(--term-fg-bright);
+  --interactive-accent-hover: var(--term-fg);
+  --interactive-accent-hsl: var(--accent-h), var(--accent-s), var(--accent-l);
+
+  /* links */
+  --link-color: var(--term-fg-bright);
+  --link-color-hover: var(--term-fg-bright);
+  --link-external-color: var(--term-fg-bright);
+  --link-external-color-hover: var(--term-fg-bright);
+  --link-decoration: underline;
+  --link-decoration-hover: underline;
+  --link-unresolved-color: var(--term-fg-dim);
+  --link-unresolved-opacity: 0.7;
+  --link-unresolved-decoration-style: dashed;
+
+  /* radii — squared off by default */
+  --radius-s: var(--term-radius);
+  --radius-m: var(--term-radius);
+  --radius-l: var(--term-radius);
+  --radius-xl: var(--term-radius);
+
+  /* selection highlight in editor + reading view */
+  --text-highlight-bg-active: var(--term-highlight);
+}
+
+
+/* ==========================================================================
+   5.  TYPOGRAPHY
+   ========================================================================== */
+body {
+  --font-monospace-theme: var(--term-mono-font);
+  --font-text-theme: var(--term-mono-font);   /* monospace body = the look */
+  --font-interface-theme: var(--term-mono-font);
+  --font-text-size: var(--term-body-size);
+
+  --bold-weight: 700;
+  --bold-color: var(--term-fg-bright);
+  --italic-color: var(--term-fg);
+  --code-size: 0.9em;
+  --line-height-normal: 1.6;
+}
+
+/* Proportional body font (Style Settings toggle) keeps UI + code monospace */
+body.terminal-prop-body {
+  --font-text-theme: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+  --line-height-normal: 1.7;
+}
+
+/* tame ligatures from Fira/JetBrains unless inside code */
+.markdown-rendered, .cm-editor { font-variant-ligatures: none; }
+.HyperMD-codeblock, .cm-inline-code, code, pre, .markdown-rendered code {
+  font-variant-ligatures: contextual;
+}
+
+
+/* ==========================================================================
+   6.  COMPONENTS
+   ========================================================================== */
+
+/* --- Headings: bright phosphor, tighter, with optional > prompt ---------- */
+.theme-dark {
+  --h1-color: var(--term-fg-bright);
+  --h2-color: var(--term-fg-bright);
+  --h3-color: var(--term-fg-bright);
+  --h4-color: var(--term-fg-bright);
+  --h5-color: var(--term-fg);
+  --h6-color: var(--term-fg-dim);
+  --h1-weight: 700;
+  --h2-weight: 700;
+  --h3-weight: 600;
+  --inline-title-color: var(--term-fg-bright);
+}
+.markdown-rendered h1, .markdown-rendered h2, .markdown-rendered h3,
+.markdown-rendered h4, .markdown-rendered h5, .markdown-rendered h6,
+.cm-header, .inline-title {
+  letter-spacing: 0.01em;
+  text-transform: none;
+}
+
+/* heading prompts in reading view */
+body.terminal-prompts .markdown-preview-view h1::before { content: "# "; color: var(--term-fg-dim); }
+body.terminal-prompts .markdown-preview-view h2::before { content: "## "; color: var(--term-fg-dim); }
+body.terminal-prompts .markdown-preview-view h3::before { content: "### "; color: var(--term-fg-dim); }
+body.terminal-prompts .markdown-preview-view h4::before { content: "#### "; color: var(--term-fg-faint); }
+body.terminal-prompts .markdown-preview-view h5::before { content: "##### "; color: var(--term-fg-faint); }
+body.terminal-prompts .markdown-preview-view h6::before { content: "###### "; color: var(--term-fg-faint); }
+
+/* blinking block cursor after the note title — pure terminal flourish */
+body.terminal-prompts .inline-title::after {
+  content: "_";
+  margin-left: 0.15em;
+  color: var(--term-fg-bright);
+  animation: term-blink 1.1s steps(1) infinite;
+}
+@keyframes term-blink { 0%, 50% { opacity: 1; } 50.01%, 100% { opacity: 0; } }
+
+/* --- Links --------------------------------------------------------------- */
+.markdown-rendered a, .cm-link, .cm-hmd-internal-link, a.internal-link {
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+}
+
+/* --- Inline code & code blocks ------------------------------------------- */
+.theme-dark {
+  --code-background: var(--term-bg-raised);
+  --code-normal: var(--term-fg);
+  --code-comment: var(--term-fg-dim);
+}
+code, .cm-inline-code, .markdown-rendered code {
+  background: var(--term-bg-raised);
+  border: 1px solid var(--term-border);
+  border-radius: var(--term-radius);
+  color: var(--term-fg-bright);
+  padding: 0.05em 0.35em;
+}
+.markdown-rendered pre, .HyperMD-codeblock {
+  background: var(--term-bg-alt) !important;
+}
+.markdown-rendered pre {
+  border: 1px solid var(--term-border);
+  border-radius: var(--term-radius);
+  box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.4);
+}
+.markdown-rendered pre code {
+  border: none;
+  background: transparent;
+  color: var(--term-fg);
+}
+
+/* Prism syntax — recoloured into the phosphor family */
+.token.comment, .token.prolog, .token.doctype, .token.cdata { color: var(--term-fg-faint); font-style: italic; }
+.token.punctuation { color: var(--term-fg-dim); }
+.token.property, .token.tag, .token.boolean, .token.number, .token.constant,
+.token.symbol, .token.keyword, .token.atrule { color: var(--term-fg-bright); }
+.token.selector, .token.string, .token.char, .token.attr-value, .token.builtin,
+.token.inserted { color: var(--term-fg); }
+.token.operator, .token.entity, .token.url, .token.variable, .token.function,
+.token.class-name, .token.attr-name { color: var(--term-fg-dim); }
+.token.important, .token.bold { font-weight: 700; color: var(--term-fg-bright); }
+
+/* --- Blockquotes --------------------------------------------------------- */
+.theme-dark {
+  --blockquote-border-color: var(--term-fg-dim);
+  --blockquote-color: var(--term-fg-dim);
+}
+.markdown-rendered blockquote {
+  border-left: 2px solid var(--term-fg-dim);
+  background: rgba(127, 227, 140, 0.03);
+  font-style: italic;
+}
+
+/* --- Callouts ------------------------------------------------------------ */
+.callout {
+  --callout-border-width: 1px;
+  --callout-border-opacity: 0.4;
+  --callout-radius: var(--term-radius);
+  background: var(--term-bg-raised);
+  border: 1px solid var(--term-border);
+}
+
+/* --- Horizontal rule ----------------------------------------------------- */
+.markdown-rendered hr, .cm-hr {
+  border: none;
+  border-top: 1px dashed var(--term-border-hi);
+}
+
+/* --- Tags ---------------------------------------------------------------- */
+.theme-dark {
+  --tag-color: var(--term-bg);
+  --tag-background: var(--term-fg-dim);
+  --tag-border-color: var(--term-fg-dim);
+  --tag-radius: var(--term-radius);
+  --tag-decoration: none;
+}
+a.tag {
+  border: 1px solid var(--term-fg-dim);
+  background: transparent;
+  color: var(--term-fg-dim);
+  padding: 0 0.4em;
+}
+a.tag:hover { color: var(--term-fg-bright); border-color: var(--term-fg-bright); }
+
+/* --- Checkboxes: square terminal boxes ----------------------------------- */
+.theme-dark {
+  --checkbox-radius: 0px;
+  --checkbox-color: var(--term-fg-bright);
+  --checkbox-color-hover: var(--term-fg);
+  --checkbox-border-color: var(--term-fg-dim);
+  --checkbox-marker-color: var(--term-bg);
+}
+input[type="checkbox"] { border-width: 1px; }
+
+/* --- Tables -------------------------------------------------------------- */
+.theme-dark {
+  --table-border-color: var(--term-border);
+  --table-header-background: var(--term-bg-raised);
+  --table-row-alt-background: rgba(127, 227, 140, 0.025);
+}
+.markdown-rendered table { border: 1px solid var(--term-border); }
+.markdown-rendered th { color: var(--term-fg-bright); font-weight: 700; }
+
+/* --- Highlight ==text== -------------------------------------------------- */
+.markdown-rendered mark, .cm-highlight {
+  background: var(--term-highlight);
+  color: var(--term-fg-bright);
+  border-radius: var(--term-radius);
+}
+
+/* --- Active line in editor ----------------------------------------------- */
+.cm-active.cm-line, .cm-activeLineGutter {
+  background: rgba(127, 227, 140, 0.035);
+}
+
+
+/* ==========================================================================
+   7.  CHROME  (sidebars, tabs, status bar, scrollbars, ribbon)
+   ========================================================================== */
+.theme-dark {
+  /* tabs */
+  --tab-background-active: var(--term-bg);
+  --tab-text-color-focused-active-current: var(--term-fg-bright);
+  --tab-outline-color: var(--term-border);
+  --tab-outline-width: 1px;
+
+  /* title bar / window frame */
+  --titlebar-background: var(--term-bg-alt);
+  --titlebar-background-focused: var(--term-bg-alt);
+  --titlebar-text-color: var(--term-fg-dim);
+  --titlebar-text-color-focused: var(--term-fg-bright);
+  --divider-color: var(--term-border);
+
+  /* status bar — styled like a shell status line */
+  --status-bar-background: var(--term-bg-alt);
+  --status-bar-text-color: var(--term-fg-dim);
+  --status-bar-border-color: var(--term-border);
+
+  /* ribbon */
+  --ribbon-background: var(--term-bg-alt);
+  --ribbon-background-collapsed: var(--term-bg-alt);
+
+  /* scrollbars */
+  --scrollbar-bg: transparent;
+  --scrollbar-thumb-bg: var(--term-border);
+  --scrollbar-active-thumb-bg: var(--term-fg-dim);
+
+  /* graph view */
+  --graph-line: var(--term-border-hi);
+  --graph-node: var(--term-fg);
+  --graph-node-focused: var(--term-fg-bright);
+  --graph-node-tag: var(--term-fg-dim);
+  --graph-node-unresolved: var(--term-fg-faint);
+  --graph-text: var(--term-fg);
+}
+
+.status-bar {
+  font-size: 0.8em;
+  letter-spacing: 0.02em;
+  border-top: 1px solid var(--term-border);
+}
+
+/* file explorer: active file glows */
+.nav-file-title.is-active,
+.nav-folder-title.is-active {
+  color: var(--term-fg-bright);
+}
+.tree-item-self.is-active { background: rgba(127, 227, 140, 0.06); }
+
+/* command palette / quick switcher prompt line */
+.prompt {
+  border: 1px solid var(--term-border-hi);
+  border-radius: var(--term-radius);
+}
+.prompt-input { color: var(--term-fg-bright); }
+
+/* buttons */
+button:not(.clickable-icon) {
+  font-family: var(--term-mono-font);
+  border: 1px solid var(--term-border-hi);
+  border-radius: var(--term-radius);
+}
+button.mod-cta {
+  background: transparent;
+  color: var(--term-fg-bright);
+  border-color: var(--term-fg-bright);
+}
+button.mod-cta:hover {
+  background: var(--term-fg-bright);
+  color: var(--term-bg);
+}
+
+
+/* ==========================================================================
+   8.  CRT EFFECTS
+   ========================================================================== */
+
+/* --- Phosphor bloom: soft glow on bright text ---------------------------- */
+body.terminal-glow .markdown-rendered h1,
+body.terminal-glow .markdown-rendered h2,
+body.terminal-glow .markdown-rendered h3,
+body.terminal-glow .cm-header,
+body.terminal-glow .inline-title,
+body.terminal-glow .markdown-rendered a,
+body.terminal-glow .cm-link,
+body.terminal-glow .cm-url,
+body.terminal-glow a.internal-link,
+body.terminal-glow strong,
+body.terminal-glow .cm-strong {
+  text-shadow: 0 0 6px var(--term-glow);
+}
+/* very faint bloom on body text for the authentic blur — keep it low */
+body.terminal-glow .markdown-rendered p,
+body.terminal-glow .cm-line {
+  text-shadow: 0 0 1.5px rgba(127, 227, 140, 0.18);
+}
+
+/* --- Scanlines + vignette ------------------------------------------------ */
+body.terminal-scanlines::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  background:
+    /* scanlines */
+    repeating-linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0) 0px,
+      rgba(0, 0, 0, 0) 1px,
+      rgba(0, 0, 0, var(--term-scanline-opacity)) 2px,
+      rgba(0, 0, 0, var(--term-scanline-opacity)) 3px
+    ),
+    /* vignette / tube curvature */
+    radial-gradient(
+      ellipse at center,
+      rgba(0, 0, 0, 0) 55%,
+      rgba(0, 0, 0, 0.35) 100%
+    );
+}
+
+/* --- Optional flicker ---------------------------------------------------- */
+body.terminal-flicker .app-container {
+  animation: term-flicker 6s infinite steps(60);
+}
+@keyframes term-flicker {
+  0%, 96%, 100% { opacity: 1; }
+  97% { opacity: 0.96; }
+  98% { opacity: 1; }
+  99% { opacity: 0.94; }
+}
+
+/* --- Block caret in the editor ------------------------------------------- */
+body.terminal-block-caret .cm-editor .cm-cursor.cm-cursor-primary {
+  border-left: 0.55em solid var(--term-fg-bright);
+  border-right: none;
+  margin-left: 0;
+  box-shadow: 0 0 6px var(--term-glow);
+  opacity: 0.85;
+}
+/* keep the secondary (multi-cursor) carets thin */
+body.terminal-block-caret .cm-editor .cm-cursor.cm-cursor-secondary {
+  border-left-color: var(--term-fg-dim);
+}
+
+
+/* ==========================================================================
+   LIGHT MODE  —  a "paper terminal" fallback (dot-matrix printout vibe)
+   The theme is built for dark; this keeps it legible if a user flips modes.
+   ========================================================================== */
+.theme-light {
+  --term-bg: #f4f1e8;  --term-bg-alt: #ece8db;  --term-bg-raised: #e6e1d2;
+  --term-border: #cfc8b4;  --term-border-hi: #a89f86;
+  --term-fg: #2f4a32;  --term-fg-bright: #0f6b2e;  --term-fg-dim: #5e6b50;  --term-fg-faint: #9aa088;
+  --term-glow: rgba(15, 107, 46, 0.0);
+  --term-selection: rgba(15, 107, 46, 0.16);  --term-highlight: rgba(15, 107, 46, 0.20);
+  --accent-h: 140; --accent-s: 70%; --accent-l: 28%;
+
+  --term-mono-font: 'JetBrains Mono', 'Fira Code', 'SF Mono', Menlo, Consolas, monospace;
+  --term-body-size: 16px;
+  --term-radius: 0px;
+
+  --background-primary: var(--term-bg);
+  --background-primary-alt: var(--term-bg-raised);
+  --background-secondary: var(--term-bg-alt);
+  --background-secondary-alt: var(--term-bg);
+  --background-modifier-border: var(--term-border);
+  --background-modifier-border-hover: var(--term-border-hi);
+  --background-modifier-border-focus: var(--term-fg-bright);
+
+  --text-normal: var(--term-fg);
+  --text-muted: var(--term-fg-dim);
+  --text-faint: var(--term-fg-faint);
+  --text-accent: var(--term-fg-bright);
+  --text-on-accent: var(--term-bg);
+  --interactive-accent: var(--term-fg-bright);
+  --link-color: var(--term-fg-bright);
+  --caret-color: var(--term-fg-bright);
+  --radius-s: var(--term-radius); --radius-m: var(--term-radius); --radius-l: var(--term-radius);
+}
+/* no bloom / scanlines glow in light mode */
+.theme-light.terminal-glow .markdown-rendered p,
+.theme-light.terminal-glow .cm-line { text-shadow: none; }
