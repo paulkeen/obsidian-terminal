@@ -12,8 +12,10 @@ Version 2 is a rebuild. See [Changes in v2](#changes-in-v2).
 
 ### Terminal UI
 
-- **Box-drawing pane frames.** Sidebar panes render as framed boxes with the
-  title notched into the top rule. The frame brightens on the focused pane.
+- **Box-drawing pane frames.** Right-sidebar panes render as framed boxes with
+  the title notched into the top rule, and the frame brightens on the focused
+  pane. The left sidebar is left unframed on purpose: the file tree already
+  reads as a container, so framing it made a box inside a box.
 - **Tree glyphs.** `▾` / `▸` text triangles instead of rotating SVG chevrons,
   with a dim `·` spine on leaf files.
 - **Ruled headings.** Each heading trails a rule to the edge of the column:
@@ -105,7 +107,7 @@ Toggle classes, if you want to hard-set them instead of using the plugin:
 |--------|-------|---------|
 | Phosphor | `terminal-green` / `-amber` / `-cyan` / `-white` | green |
 | High contrast | `terminal-hicontrast` | off |
-| Pane frames | `terminal-frames` | on |
+| Pane frames (right sidebar) | `terminal-frames` | on |
 | Tree glyphs | `terminal-tree-glyphs` | on |
 | Ruled headings | `terminal-rule-headings` | on |
 | Status line | `terminal-statusline` | on |

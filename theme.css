@@ -72,7 +72,7 @@ settings:
   -
     id: terminal-frames
     title: Box-drawing pane frames
-    description: Draws sidebar panes as framed boxes with the title notched into the top rule, like lazygit or btop.
+    description: Draws right-sidebar panes as framed boxes with the title notched into the top rule, like lazygit or btop.
     type: class-toggle
     default: true
   -
@@ -232,8 +232,8 @@ settings:
 /* --- dark: green (P1), the default ---------------------------------------- */
 body.theme-dark,
 body.theme-dark.terminal-green {
-  --term-bg: #0d120e;  --term-bg-alt: #141b16;  --term-bg-raised: #1b241d;
-  --term-border: #24382a;  --term-border-hi: #3c6349;
+  --term-bg: #0a0c0b;  --term-bg-alt: #0e1110;  --term-bg-raised: #141816;
+  --term-border: #202623;  --term-border-hi: #374c42;
   --term-fg: #a8e6b8;  --term-fg-bright: #5cff9e;  --term-fg-dim: #7fc294;  --term-fg-faint: #5a8869;  --term-fg-dim-base: #7fc294;
   --term-glow: rgba(92, 255, 158, 0.45);
   --accent-h: 149; --accent-s: 100%; --accent-l: 68%;
@@ -241,8 +241,8 @@ body.theme-dark.terminal-green {
 
 /* --- dark: amber (P3) ----------------------------------------------------- */
 body.theme-dark.terminal-amber {
-  --term-bg: #14100a;  --term-bg-alt: #1c1710;  --term-bg-raised: #241d14;
-  --term-border: #3a2e18;  --term-border-hi: #5f4d28;
+  --term-bg: #0f0c07;  --term-bg-alt: #131009;  --term-bg-raised: #1a160f;
+  --term-border: #2c2417;  --term-border-hi: #4a3f26;
   --term-fg: #f0cf94;  --term-fg-bright: #ffc866;  --term-fg-dim: #c9a267;  --term-fg-faint: #8f7448;  --term-fg-dim-base: #c9a267;
   --term-glow: rgba(255, 200, 102, 0.45);
   --accent-h: 38; --accent-s: 100%; --accent-l: 70%;
@@ -250,8 +250,8 @@ body.theme-dark.terminal-amber {
 
 /* --- dark: cyan ----------------------------------------------------------- */
 body.theme-dark.terminal-cyan {
-  --term-bg: #0a1214;  --term-bg-alt: #101c1e;  --term-bg-raised: #162527;
-  --term-border: #1f3a3d;  --term-border-hi: #33646a;
+  --term-bg: #080c0d;  --term-bg-alt: #0c1112;  --term-bg-raised: #121818;
+  --term-border: #1c2627;  --term-border-hi: #2f4a4d;
   --term-fg: #a2dfe2;  --term-fg-bright: #4ff2f2;  --term-fg-dim: #79bcc0;  --term-fg-faint: #568c90;  --term-fg-dim-base: #79bcc0;
   --term-glow: rgba(79, 242, 242, 0.42);
   --accent-h: 180; --accent-s: 87%; --accent-l: 63%;
@@ -259,8 +259,8 @@ body.theme-dark.terminal-cyan {
 
 /* --- dark: paper-white (VT220) ------------------------------------------- */
 body.theme-dark.terminal-white {
-  --term-bg: #101214;  --term-bg-alt: #181b1e;  --term-bg-raised: #212528;
-  --term-border: #2e3438;  --term-border-hi: #4a5257;
+  --term-bg: #0d0f10;  --term-bg-alt: #111314;  --term-bg-raised: #171a1b;
+  --term-border: #262a2c;  --term-border-hi: #414749;
   --term-fg: #dbe2dd;  --term-fg-bright: #ffffff;  --term-fg-dim: #a8b2ab;  --term-fg-faint: #7b857e;  --term-fg-dim-base: #a8b2ab;
   --term-glow: rgba(255, 255, 255, 0.32);
   --accent-h: 150; --accent-s: 10%; --accent-l: 88%;
@@ -760,10 +760,12 @@ button.mod-cta:hover {
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
-   6a. Box-drawing pane frames.
-   Each sidebar pane becomes a framed box with its title notched into the top
-   rule. The notch is punched by giving the title the same background as the
-   pane, so it erases the border behind itself.
+   6a. Box-drawing pane frames (right sidebar only).
+   Each right-sidebar pane becomes a framed box with its title notched into
+   the top rule. The left sidebar is deliberately left unframed: the file tree
+   already reads as a container, so framing it produced a box inside a box.
+   The notch is punched by giving the title the same background as the pane,
+   so it erases the border behind itself.
 
    Three things about Obsidian's own layout drive how this is built:
      .workspace-leaf        contain: strict, overflow: hidden, height: 100%
@@ -774,13 +776,11 @@ button.mod-cta:hover {
    overriding --header-height rather than by setting height:auto, so that
    .view-content's calc stays in agreement with it.
    -------------------------------------------------------------------------- */
-body.terminal-frames .mod-left-split .workspace-leaf,
 body.terminal-frames .mod-right-split .workspace-leaf {
   box-sizing: border-box;
   padding: 9px 7px 7px;
 }
 
-body.terminal-frames .mod-left-split .workspace-leaf-content,
 body.terminal-frames .mod-right-split .workspace-leaf-content {
   --header-height: 24px;
   --view-header-height: 24px;
@@ -790,7 +790,6 @@ body.terminal-frames .mod-right-split .workspace-leaf-content {
   overflow: visible;
 }
 
-body.terminal-frames .mod-left-split .view-header,
 body.terminal-frames .mod-right-split .view-header {
   background: transparent;
   border: none;
@@ -800,19 +799,16 @@ body.terminal-frames .mod-right-split .view-header {
   align-items: center;
 }
 
-body.terminal-frames .mod-left-split .view-header-title-container,
 body.terminal-frames .mod-right-split .view-header-title-container {
   flex: 0 1 auto;
   overflow: visible;
 }
 /* Obsidian's own fade-out gradient over a long title. */
-body.terminal-frames .mod-left-split .view-header-title-container::after,
 body.terminal-frames .mod-right-split .view-header-title-container::after {
   display: none;
 }
 
 /* Lift the title by half the header height so it lands on the top rule. */
-body.terminal-frames .mod-left-split .view-header-title,
 body.terminal-frames .mod-right-split .view-header-title {
   position: relative;
   top: calc(var(--header-height) / -2);
@@ -829,7 +825,6 @@ body.terminal-frames .mod-right-split .view-header-title {
 }
 
 /* The pane's action buttons ride the rule too, like box controls. */
-body.terminal-frames .mod-left-split .view-actions,
 body.terminal-frames .mod-right-split .view-actions {
   position: relative;
   top: calc(var(--header-height) / -2);
@@ -839,18 +834,15 @@ body.terminal-frames .mod-right-split .view-actions {
 }
 
 /* The frame highlights when the pane has focus. */
-body.terminal-frames .mod-left-split .workspace-leaf.mod-active .workspace-leaf-content,
 body.terminal-frames .mod-right-split .workspace-leaf.mod-active .workspace-leaf-content {
   border-color: var(--term-fg-dim);
 }
-body.terminal-frames .mod-left-split .workspace-leaf.mod-active .view-header-title,
 body.terminal-frames .mod-right-split .workspace-leaf.mod-active .view-header-title {
   color: var(--term-fg-bright);
 }
 
 /* With view headers turned off there is no title to notch, so the frame just
    becomes a plain box. Give it back its top padding. */
-body:not(.show-view-header).terminal-frames .mod-left-split .view-content,
 body:not(.show-view-header).terminal-frames .mod-right-split .view-content {
   padding-top: 8px;
 }
@@ -867,11 +859,14 @@ body.terminal-tree-glyphs .tree-item-self .collapse-icon {
   display: flex;
   align-items: center;
   justify-content: center;
+  /* the row is align-items:baseline, so centre the glyph against the row
+     instead of letting a larger triangle sit on the text baseline */
+  align-self: center;
 }
 body.terminal-tree-glyphs .tree-item-self .collapse-icon::before {
   content: "\25BE";               /* down triangle, expanded */
   font-family: var(--term-mono-font);
-  font-size: 0.82em;
+  font-size: 1.15em;
   line-height: 1;
   color: var(--nav-collapse-icon-color);
 }
