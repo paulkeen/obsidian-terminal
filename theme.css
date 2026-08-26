@@ -1,27 +1,30 @@
 /* ==========================================================================
-   TERMINAL  —  a retro CRT / CLI theme for Obsidian
+   TERMINAL  ::  a TUI theme for Obsidian
    --------------------------------------------------------------------------
-   Dark phosphor background, green monospace text, sharp corners, scanlines
-   and a subtle bloom — built on Obsidian's native CSS-variable system so it
-   stays compatible with core + community plugins (the "Minimal" philosophy).
+   Version 2. Rebuilt around the terminal *interface* rather than the terminal
+   *photograph*: box-drawing pane frames, tree glyphs, ruled headings and a
+   segmented status line, with the CRT effects kept but scoped so they no
+   longer tax the chrome.
 
    Structure:
-     1.  Style Settings block (in-app toggles via the Style Settings plugin)
-     2.  Core palette  (--term-* intermediate variables)
-     3.  Phosphor schemes (green / amber / cyan / paper-white)
-     4.  Mapping --term-* onto Obsidian's semantic variables
-     5.  Typography
-     6.  Component styling (headings, links, code, tables, callouts, …)
-     7.  Chrome (sidebars, tabs, status bar, scrollbars, ribbon)
-     8.  CRT effects (scanlines, vignette, bloom, block caret)
+     1.  Style Settings block
+     2.  Palettes            (dark x4 phosphor, light x4, all mode-scoped)
+     3.  Mapping layer       (--term-* onto Obsidian's semantic vars, once,
+                              at body scope, so light mode gets everything)
+     4.  Typography
+     5.  Components
+     6.  TUI chrome          (frames, tree glyphs, ruled headings, statusline)
+     7.  CRT effects         (scoped to the note surface only)
+     8.  Motion + accessibility
+
+   Contrast: every text tier is validated against the surface it actually
+   sits on. Sidebar body text clears 7:1 and the muted tier clears 4.5:1 in
+   all eight palettes.
    ========================================================================== */
 
 
 /* ==========================================================================
    1.  STYLE SETTINGS
-   Install the "Style Settings" community plugin to get these toggles under
-   Settings → Style Settings → Terminal. Everything works without it too;
-   these just expose the defaults baked in below.
    ========================================================================== */
 /* @settings
 
@@ -55,39 +58,93 @@ settings:
         label: Paper-white (VT220)
         value: terminal-white
   -
+    id: terminal-hicontrast
+    title: High contrast
+    description: For a dimmed laptop screen or a bright room. Promotes muted text to body brightness and drops the scanlines.
+    type: class-toggle
+    default: false
+  -
+    id: terminal-tui
+    title: Terminal UI
+    type: heading
+    level: 1
+    collapsed: false
+  -
+    id: terminal-frames
+    title: Box-drawing pane frames
+    description: Draws sidebar panes as framed boxes with the title notched into the top rule, like lazygit or btop.
+    type: class-toggle
+    default: true
+  -
+    id: terminal-tree-glyphs
+    title: Tree glyphs
+    description: Replaces the collapse chevrons with text triangles.
+    type: class-toggle
+    default: true
+  -
+    id: terminal-rule-headings
+    title: Ruled headings
+    description: Trails each heading with a horizontal rule to the edge of the column.
+    type: class-toggle
+    default: true
+  -
+    id: terminal-statusline
+    title: Segmented status line
+    description: Divides the status bar into piped segments.
+    type: class-toggle
+    default: true
+  -
+    id: terminal-powerline
+    title: Powerline separators
+    description: Uses angled powerline arrows in the status line instead of pipes. Requires a Nerd Font, otherwise you get empty boxes.
+    type: class-toggle
+    default: false
+  -
+    id: terminal-gutter
+    title: Line-number gutter
+    description: Numbers the lines in the editor, like a real editor.
+    type: class-toggle
+    default: false
+  -
+    id: terminal-crt
+    title: CRT effects
+    type: heading
+    level: 1
+    collapsed: false
+  -
     id: terminal-scanlines
-    title: CRT scanlines
-    description: Horizontal scanline overlay plus a faint vignette.
+    title: Scanlines
+    description: Raster lines over the note surface only, never the chrome. Additive, so they cost almost no contrast.
     type: class-toggle
     default: true
   -
     id: terminal-glow
     title: Phosphor bloom
-    description: Soft text-shadow glow on headings, links and accents.
+    description: Soft glow on headings, links and accents.
     type: class-toggle
     default: true
   -
-    id: terminal-flicker
-    title: Screen flicker
-    description: Very subtle brightness flicker. Off by default; it can distract.
+    id: terminal-aberration
+    title: Convergence error
+    description: Sub-pixel red/cyan split on headings, like a misaligned electron gun.
     type: class-toggle
     default: false
   -
-    id: terminal-prompts
-    title: Heading prompts
-    description: Prefix reading-view headings with a > shell prompt.
+    id: terminal-persistence
+    title: Phosphor persistence
+    description: Hover and selection colours decay in and out instead of snapping.
     type: class-toggle
     default: true
   -
     id: terminal-block-caret
     title: Block cursor
-    description: Fat blinking block caret in the editor, like a real terminal.
+    description: Fat blinking block caret in the editor.
     type: class-toggle
     default: true
   -
-    id: terminal-prop-body
-    title: Proportional body font
-    description: Switch note body text from monospace to a normal sans font.
+    id: terminal-flicker
+    title: Screen flicker
+    description: Off by default. It distracts, and it forces the whole window onto a composited layer.
     type: class-toggle
     default: false
   -
@@ -97,11 +154,23 @@ settings:
     level: 1
     collapsed: true
   -
+    id: terminal-prop-body
+    title: Proportional body font
+    description: Switch note body text from monospace to a sans font. Keeps the UI and code monospace.
+    type: class-toggle
+    default: false
+  -
     id: --term-mono-font
     title: Monospace font
-    description: Used for body text, code and the UI.
+    description: Body text, code and UI. Monaspace Neon or Berkeley Mono are worth installing.
     type: variable-text
-    default: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'SF Mono', Menlo, Consolas, monospace"
+    default: "'Monaspace Neon', 'Berkeley Mono', 'IBM Plex Mono', 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace"
+  -
+    id: --term-display-font
+    title: Display font
+    description: Headings, pane titles and the status line. Departure Mono is the intended pairing.
+    type: variable-text
+    default: "'Departure Mono', 'Monaspace Krypton', 'Martian Mono', var(--term-mono-font)"
   -
     id: --term-body-size
     title: Body font size
@@ -124,101 +193,187 @@ settings:
   -
     id: --term-scanline-opacity
     title: Scanline intensity
+    description: Additive white lines. Even the maximum costs under 1 point of contrast.
     type: variable-number-slider
-    default: 0.22
+    default: 0.045
     min: 0
-    max: 0.6
+    max: 0.14
+    step: 0.005
+  -
+    id: --term-vignette
+    title: Tube vignette
+    description: Darkening at the edges of the note surface. No longer touches the sidebars.
+    type: variable-number-slider
+    default: 0.12
+    min: 0
+    max: 0.4
     step: 0.02
 */
 
 
 /* ==========================================================================
-   2.  CORE PALETTE  (defaults = green phosphor)
+   2.  PALETTES
+   Every palette is scoped to a colour mode, so a phosphor class can never
+   leak a dark ramp into light mode (the v1 bug: body.terminal-amber at
+   specificity 0-2-1 beat a bare .theme-light at 0-1-0).
+
+   Tiers, and the surface each is measured against:
+     --term-bg          note surface
+     --term-bg-alt      sidebars, status bar, title bar
+     --term-bg-raised   code blocks, callouts, hovers
+     --term-border      hairline rules            (decorative, not text)
+     --term-border-hi   frames, focus rings       (decorative, not text)
+     --term-fg          body text                 >= 7:1
+     --term-fg-bright   headings, links, accents  >= 4.5:1
+     --term-fg-dim      muted text, nav items     >= 4.5:1  <- the v1 failure
+     --term-fg-faint    faint text, guides        >= 3:1
    ========================================================================== */
-.theme-dark {
-  --term-bg:          #0a0e0a;   /* main screen black, faint green cast      */
-  --term-bg-alt:      #070b07;   /* sidebars / deeper surfaces               */
-  --term-bg-raised:   #0e150e;   /* hovers, code, raised panels              */
-  --term-border:      #18301c;   /* hairline rules                           */
-  --term-border-hi:   #2c5740;   /* brighter rules / focus                   */
 
-  --term-fg:          #6ee787;   /* body text  (soft phosphor)               */
-  --term-fg-bright:   #28ff8a;   /* headings, links, accents (hot phosphor)  */
-  --term-fg-dim:      #4f9c69;   /* muted text                               */
-  --term-fg-faint:    #2c5740;   /* faint text, guides                       */
-  --term-glow:        rgba(40, 255, 138, 0.55);
-  --term-selection:   rgba(40, 255, 138, 0.18);
-  --term-highlight:   rgba(40, 255, 138, 0.30);
+/* --- dark: green (P1), the default ---------------------------------------- */
+body.theme-dark,
+body.theme-dark.terminal-green {
+  --term-bg: #0d120e;  --term-bg-alt: #141b16;  --term-bg-raised: #1b241d;
+  --term-border: #24382a;  --term-border-hi: #3c6349;
+  --term-fg: #a8e6b8;  --term-fg-bright: #5cff9e;  --term-fg-dim: #7fc294;  --term-fg-faint: #5a8869;  --term-fg-dim-base: #7fc294;
+  --term-glow: rgba(92, 255, 158, 0.45);
+  --accent-h: 149; --accent-s: 100%; --accent-l: 68%;
+}
 
-  /* drives the native accent system (graph, sliders, toggles, etc.) */
-  --accent-h: 147;
-  --accent-s: 100%;
-  --accent-l: 58%;
+/* --- dark: amber (P3) ----------------------------------------------------- */
+body.theme-dark.terminal-amber {
+  --term-bg: #14100a;  --term-bg-alt: #1c1710;  --term-bg-raised: #241d14;
+  --term-border: #3a2e18;  --term-border-hi: #5f4d28;
+  --term-fg: #f0cf94;  --term-fg-bright: #ffc866;  --term-fg-dim: #c9a267;  --term-fg-faint: #8f7448;  --term-fg-dim-base: #c9a267;
+  --term-glow: rgba(255, 200, 102, 0.45);
+  --accent-h: 38; --accent-s: 100%; --accent-l: 70%;
+}
 
+/* --- dark: cyan ----------------------------------------------------------- */
+body.theme-dark.terminal-cyan {
+  --term-bg: #0a1214;  --term-bg-alt: #101c1e;  --term-bg-raised: #162527;
+  --term-border: #1f3a3d;  --term-border-hi: #33646a;
+  --term-fg: #a2dfe2;  --term-fg-bright: #4ff2f2;  --term-fg-dim: #79bcc0;  --term-fg-faint: #568c90;  --term-fg-dim-base: #79bcc0;
+  --term-glow: rgba(79, 242, 242, 0.42);
+  --accent-h: 180; --accent-s: 87%; --accent-l: 63%;
+}
+
+/* --- dark: paper-white (VT220) ------------------------------------------- */
+body.theme-dark.terminal-white {
+  --term-bg: #101214;  --term-bg-alt: #181b1e;  --term-bg-raised: #212528;
+  --term-border: #2e3438;  --term-border-hi: #4a5257;
+  --term-fg: #dbe2dd;  --term-fg-bright: #ffffff;  --term-fg-dim: #a8b2ab;  --term-fg-faint: #7b857e;  --term-fg-dim-base: #a8b2ab;
+  --term-glow: rgba(255, 255, 255, 0.32);
+  --accent-h: 150; --accent-s: 10%; --accent-l: 88%;
+}
+
+/* --- light: green, a dot-matrix printout --------------------------------- */
+body.theme-light,
+body.theme-light.terminal-green {
+  --term-bg: #f2f4ee;  --term-bg-alt: #e7ebe1;  --term-bg-raised: #dbe1d3;
+  --term-border: #c1cab8;  --term-border-hi: #93a288;
+  --term-fg: #1e3524;  --term-fg-bright: #0a5c26;  --term-fg-dim: #3f5a46;  --term-fg-faint: #66806e;  --term-fg-dim-base: #3f5a46;
+  --term-glow: rgba(10, 92, 38, 0);
+  --accent-h: 145; --accent-s: 80%; --accent-l: 20%;
+}
+
+/* --- light: amber, tractor-feed paper ------------------------------------ */
+body.theme-light.terminal-amber {
+  --term-bg: #f7f2e7;  --term-bg-alt: #ece5d4;  --term-bg-raised: #e0d7c2;
+  --term-border: #cbbfa2;  --term-border-hi: #a08d6e;
+  --term-fg: #382a11;  --term-fg-bright: #7a4606;  --term-fg-dim: #5b4a24;  --term-fg-faint: #826f4d;  --term-fg-dim-base: #5b4a24;
+  --term-glow: rgba(122, 70, 6, 0);
+  --accent-h: 32; --accent-s: 90%; --accent-l: 25%;
+}
+
+/* --- light: cyan, blueprint ---------------------------------------------- */
+body.theme-light.terminal-cyan {
+  --term-bg: #eff3f4;  --term-bg-alt: #e1eaeb;  --term-bg-raised: #d3e0e2;
+  --term-border: #b6c7ca;  --term-border-hi: #889ea3;
+  --term-fg: #16312f;  --term-fg-bright: #075454;  --term-fg-dim: #3b5857;  --term-fg-faint: #5f7a79;  --term-fg-dim-base: #3b5857;
+  --term-glow: rgba(7, 84, 84, 0);
+  --accent-h: 180; --accent-s: 84%; --accent-l: 18%;
+}
+
+/* --- light: paper-white, plain laser print ------------------------------- */
+body.theme-light.terminal-white {
+  --term-bg: #f2f3f1;  --term-bg-alt: #e7e9e6;  --term-bg-raised: #dbdedb;
+  --term-border: #c3c6c2;  --term-border-hi: #969a95;
+  --term-fg: #1b1e1c;  --term-fg-bright: #000000;  --term-fg-dim: #494e4a;  --term-fg-faint: #6f746f;  --term-fg-dim-base: #494e4a;
+  --term-glow: rgba(0, 0, 0, 0);
+  --accent-h: 150; --accent-s: 4%; --accent-l: 12%;
+}
+
+/* --------------------------------------------------------------------------
+   Derived tints. v1 hard-coded rgba(127,227,140,...) in six places, so every
+   hover, blockquote and table stripe stayed green no matter which phosphor
+   you picked. These follow the palette instead.
+   -------------------------------------------------------------------------- */
+body {
+  --term-tint-1: color-mix(in srgb, var(--term-fg) 4%, transparent);
+  --term-tint-2: color-mix(in srgb, var(--term-fg) 8%, transparent);
+  --term-tint-3: color-mix(in srgb, var(--term-fg) 14%, transparent);
+  --term-selection: color-mix(in srgb, var(--term-fg-bright) 22%, transparent);
+  --term-highlight: color-mix(in srgb, var(--term-fg-bright) 32%, transparent);
+
+  /* ANSI-16 semantics. Used only where Obsidian already expects meaning
+     (callout types, error states), so the theme reads monochrome but a
+     warning still looks like a warning. */
+  --term-ansi-red:     #ff6b6b;
+  --term-ansi-yellow:  #ffd479;
+  --term-ansi-orange:  #ffa657;
+  --term-ansi-blue:    #7aa6ff;
+  --term-ansi-magenta: #ff8ad8;
+  --term-ansi-cyan:    #6fe0e0;
+  --term-ansi-violet:  #c9a0ff;
+}
+body.theme-light {
+  --term-ansi-red:     #a32718;
+  --term-ansi-yellow:  #6d5202;
+  --term-ansi-orange:  #8a4b06;
+  --term-ansi-blue:    #1d4a9e;
+  --term-ansi-magenta: #912b74;
+  --term-ansi-cyan:    #0d5c5c;
+  --term-ansi-violet:  #5a3399;
+}
+
+/* --------------------------------------------------------------------------
+   High contrast. For a dimmed panel or a bright room: promote every text
+   tier one step and drop the raster entirely.
+   -------------------------------------------------------------------------- */
+body.terminal-hicontrast {
+  --term-fg-dim: var(--term-fg);
+  --term-fg-faint: var(--term-fg-dim-base);
+  --term-scanline-opacity: 0;
+  --term-vignette: 0;
+}
+
+
+/* ==========================================================================
+   3.  MAPPING LAYER
+   One copy, at body scope, referencing only --term-*. v1 kept all of this
+   under .theme-dark, which is why light mode was missing headings, tags,
+   tables, checkboxes and the entire chrome section.
+   ========================================================================== */
+body {
   /* knobs exposed to Style Settings */
-  --term-mono-font: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'SF Mono', Menlo, Consolas, monospace;
+  --term-mono-font: 'Monaspace Neon', 'Berkeley Mono', 'IBM Plex Mono', 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
+  --term-display-font: 'Departure Mono', 'Monaspace Krypton', 'Martian Mono', var(--term-mono-font);
   --term-body-size: 16px;
   --term-radius: 0px;
-  --term-scanline-opacity: 0.22;
-}
+  --term-scanline-opacity: 0.045;
+  --term-vignette: 0.12;
 
-
-/* ==========================================================================
-   3.  PHOSPHOR SCHEMES
-   class-select adds one of these to <body>. Green = baseline (above).
-   ========================================================================== */
-body.terminal-green {
-  --term-bg: #0a0e0a;  --term-bg-alt: #070b07;  --term-bg-raised: #0e150e;
-  --term-border: #18301c;  --term-border-hi: #2c5740;
-  --term-fg: #6ee787;  --term-fg-bright: #28ff8a;  --term-fg-dim: #4f9c69;  --term-fg-faint: #2c5740;
-  --term-glow: rgba(40, 255, 138, 0.55);
-  --term-selection: rgba(40, 255, 138, 0.18);  --term-highlight: rgba(40, 255, 138, 0.30);
-  --accent-h: 147; --accent-s: 100%; --accent-l: 58%;
-}
-
-body.terminal-amber {
-  --term-bg: #0e0a04;  --term-bg-alt: #0a0703;  --term-bg-raised: #15100a;
-  --term-border: #3a2a10;  --term-border-hi: #5c4620;
-  --term-fg: #e8a850;  --term-fg-bright: #ffc66d;  --term-fg-dim: #9c7430;  --term-fg-faint: #5c4620;
-  --term-glow: rgba(255, 176, 84, 0.55);
-  --term-selection: rgba(255, 176, 84, 0.18);  --term-highlight: rgba(255, 176, 84, 0.30);
-  --accent-h: 38; --accent-s: 100%; --accent-l: 65%;
-}
-
-body.terminal-cyan {
-  --term-bg: #050e0e;  --term-bg-alt: #030a0a;  --term-bg-raised: #0a1616;
-  --term-border: #143030;  --term-border-hi: #2c5757;
-  --term-fg: #5fd7d7;  --term-fg-bright: #2ee6e6;  --term-fg-dim: #3f9c9c;  --term-fg-faint: #2c5757;
-  --term-glow: rgba(46, 230, 230, 0.55);
-  --term-selection: rgba(46, 230, 230, 0.18);  --term-highlight: rgba(46, 230, 230, 0.30);
-  --accent-h: 180; --accent-s: 78%; --accent-l: 55%;
-}
-
-body.terminal-white {
-  --term-bg: #08090a;  --term-bg-alt: #050607;  --term-bg-raised: #101213;
-  --term-border: #232629;  --term-border-hi: #3a3f44;
-  --term-fg: #c9d4cc;  --term-fg-bright: #ffffff;  --term-fg-dim: #7e8a82;  --term-fg-faint: #4a534d;
-  --term-glow: rgba(220, 235, 225, 0.45);
-  --term-selection: rgba(220, 235, 225, 0.16);  --term-highlight: rgba(220, 235, 225, 0.26);
-  --accent-h: 150; --accent-s: 12%; --accent-l: 82%;
-}
-
-
-/* ==========================================================================
-   4.  MAP --term-* ONTO OBSIDIAN'S SEMANTIC VARIABLES
-   This is what keeps the theme compatible with everything else.
-   ========================================================================== */
-.theme-dark {
-  /* base palette — most semantic vars derive from these */
+  /* base ramp. v1 collapsed 20/25 and 30/35 onto the same two values, which
+     removed the separation Obsidian's built-in components derive from it. */
   --color-base-00: var(--term-bg);
   --color-base-05: var(--term-bg-alt);
   --color-base-10: var(--term-bg-raised);
   --color-base-20: var(--term-border);
-  --color-base-25: var(--term-border);
+  --color-base-25: color-mix(in srgb, var(--term-border) 65%, var(--term-border-hi));
   --color-base-30: var(--term-border-hi);
-  --color-base-35: var(--term-border-hi);
+  --color-base-35: color-mix(in srgb, var(--term-border-hi) 60%, var(--term-fg-faint));
   --color-base-40: var(--term-fg-faint);
-  --color-base-50: var(--term-fg-dim);
+  --color-base-50: color-mix(in srgb, var(--term-fg-faint) 50%, var(--term-fg-dim));
   --color-base-60: var(--term-fg-dim);
   --color-base-70: var(--term-fg);
   --color-base-100: var(--term-fg-bright);
@@ -227,14 +382,16 @@ body.terminal-white {
   --background-primary: var(--term-bg);
   --background-primary-alt: var(--term-bg-raised);
   --background-secondary: var(--term-bg-alt);
-  --background-secondary-alt: var(--term-bg);
-  --background-modifier-hover: rgba(127, 227, 140, 0.06);
+  --background-secondary-alt: var(--term-bg-alt);
+  --background-modifier-hover: var(--term-tint-2);
   --background-modifier-active-hover: var(--term-selection);
   --background-modifier-border: var(--term-border);
   --background-modifier-border-hover: var(--term-border-hi);
   --background-modifier-border-focus: var(--term-fg-bright);
-  --background-modifier-form-field: var(--term-bg-alt);
+  --background-modifier-form-field: var(--term-bg-raised);
   --background-modifier-flair: var(--term-fg-bright);
+  --background-modifier-error: color-mix(in srgb, var(--term-ansi-red) 22%, transparent);
+  --background-modifier-success: color-mix(in srgb, var(--term-fg-bright) 22%, transparent);
 
   /* text */
   --text-normal: var(--term-fg);
@@ -245,9 +402,37 @@ body.terminal-white {
   --text-on-accent: var(--term-bg);
   --text-selection: var(--term-selection);
   --text-highlight-bg: var(--term-highlight);
+  --text-highlight-bg-active: var(--term-highlight);
+  --text-error: var(--term-ansi-red);
+  --text-success: var(--term-fg-bright);
   --caret-color: var(--term-fg-bright);
 
-  /* interactive / accent */
+  /* nav items. Obsidian defaults --nav-item-color to --text-muted, which is
+     what made the right sidebar the worst-lit surface in the app. */
+  --nav-item-color: var(--term-fg-dim);
+  --nav-item-color-hover: var(--term-fg);
+  --nav-item-color-active: var(--term-fg-bright);
+  --nav-item-color-selected: var(--term-fg-bright);
+  --nav-item-background-active: var(--term-tint-2);
+  --nav-item-background-hover: var(--term-tint-1);
+  --nav-indentation-guide-color: var(--term-border);
+  --nav-collapse-icon-color: var(--term-fg-dim);
+  --nav-collapse-icon-color-collapsed: var(--term-fg-faint);
+  --nav-heading-color: var(--term-fg);
+  --nav-heading-color-hover: var(--term-fg-bright);
+  --nav-heading-color-collapsed: var(--term-fg-dim);
+
+  /* tabs. --tab-text-color defaults to --text-faint, which in v1 was 1.6:1. */
+  --tab-text-color: var(--term-fg-dim);
+  --tab-text-color-focused: var(--term-fg-dim);
+  --tab-text-color-active: var(--term-fg);
+  --tab-text-color-focused-active: var(--term-fg);
+  --tab-text-color-focused-active-current: var(--term-fg-bright);
+  --tab-outline-color: var(--term-border);
+  --tab-outline-width: 1px;
+  --tab-background-active: var(--term-bg);
+
+  /* interactive */
   --interactive-normal: var(--term-bg-raised);
   --interactive-hover: var(--term-border);
   --interactive-accent: var(--term-fg-bright);
@@ -257,31 +442,123 @@ body.terminal-white {
   /* links */
   --link-color: var(--term-fg-bright);
   --link-color-hover: var(--term-fg-bright);
-  --link-external-color: var(--term-fg-bright);
-  --link-external-color-hover: var(--term-fg-bright);
+  --link-external-color: var(--term-ansi-cyan);
+  --link-external-color-hover: var(--term-ansi-cyan);
   --link-decoration: underline;
   --link-decoration-hover: underline;
-  --link-unresolved-color: var(--term-fg-dim);
-  --link-unresolved-opacity: 0.7;
+  --link-unresolved-color: var(--term-ansi-orange);
+  --link-unresolved-opacity: 0.85;
   --link-unresolved-decoration-style: dashed;
 
-  /* radii — squared off by default */
+  /* radii */
   --radius-s: var(--term-radius);
   --radius-m: var(--term-radius);
   --radius-l: var(--term-radius);
   --radius-xl: var(--term-radius);
 
-  /* selection highlight in editor + reading view */
-  --text-highlight-bg-active: var(--term-highlight);
+  /* headings */
+  --h1-color: var(--term-fg-bright);
+  --h2-color: var(--term-fg-bright);
+  --h3-color: var(--term-fg-bright);
+  --h4-color: var(--term-fg);
+  --h5-color: var(--term-fg);
+  --h6-color: var(--term-fg-dim);
+  --h1-weight: 700; --h2-weight: 700; --h3-weight: 600;
+  --inline-title-color: var(--term-fg-bright);
+
+  /* code */
+  --code-background: var(--term-bg-raised);
+  --code-normal: var(--term-fg);
+  --code-comment: var(--term-fg-dim);
+
+  /* blockquote */
+  --blockquote-border-color: var(--term-border-hi);
+  --blockquote-color: var(--term-fg-dim);
+
+  /* tags. v1 set --tag-color and --tag-background then contradicted both
+     three lines later with an a.tag rule. Now consistent. */
+  --tag-color: var(--term-ansi-magenta);
+  --tag-background: transparent;
+  --tag-background-hover: var(--term-tint-2);
+  --tag-border-color: color-mix(in srgb, var(--term-ansi-magenta) 55%, transparent);
+  --tag-border-width: 1px;
+  --tag-radius: var(--term-radius);
+  --tag-decoration: none;
+  --tag-padding-x: 0.45em;
+  --tag-padding-y: 0.05em;
+
+  /* checkboxes */
+  --checkbox-radius: 0px;
+  --checkbox-size: 1em;
+  --checkbox-color: var(--term-fg-bright);
+  --checkbox-color-hover: var(--term-fg);
+  --checkbox-border-color: var(--term-fg-dim);
+  --checkbox-border-color-hover: var(--term-fg-bright);
+  --checkbox-marker-color: var(--term-bg);
+
+  /* tables */
+  --table-border-color: var(--term-border);
+  --table-border-width: 1px;
+  --table-header-background: var(--term-bg-raised);
+  --table-header-color: var(--term-fg-bright);
+  --table-row-alt-background: var(--term-tint-1);
+  --table-row-background-hover: var(--term-tint-2);
+
+  /* chrome */
+  --titlebar-background: var(--term-bg-alt);
+  --titlebar-background-focused: var(--term-bg-alt);
+  --titlebar-text-color: var(--term-fg-dim);
+  --titlebar-text-color-focused: var(--term-fg-bright);
+  --divider-color: var(--term-border);
+  --divider-color-hover: var(--term-fg-bright);
+  --status-bar-background: var(--term-bg-alt);
+  --status-bar-text-color: var(--term-fg-dim);
+  --status-bar-border-color: var(--term-border);
+  --ribbon-background: var(--term-bg-alt);
+  --ribbon-background-collapsed: var(--term-bg-alt);
+  --icon-color: var(--term-fg-dim);
+  --icon-color-hover: var(--term-fg);
+  --icon-color-active: var(--term-fg-bright);
+  --icon-color-focused: var(--term-fg);
+  --scrollbar-bg: transparent;
+  --scrollbar-thumb-bg: var(--term-border-hi);
+  --scrollbar-active-thumb-bg: var(--term-fg-dim);
+  --indentation-guide-color: var(--term-border);
+  --indentation-guide-color-active: var(--term-border-hi);
+
+  /* graph */
+  --graph-line: var(--term-border-hi);
+  --graph-node: var(--term-fg);
+  --graph-node-focused: var(--term-fg-bright);
+  --graph-node-tag: var(--term-ansi-magenta);
+  --graph-node-attachment: var(--term-ansi-cyan);
+  --graph-node-unresolved: var(--term-fg-faint);
+  --graph-text: var(--term-fg);
+
+  /* callouts, driven off the ANSI set so meaning survives the monochrome */
+  --callout-default: var(--accent-h), var(--accent-s), var(--accent-l);
+  --callout-info: 220, 100%, 74%;
+  --callout-summary: 180, 68%, 66%;
+  --callout-tip: 180, 68%, 66%;
+  --callout-todo: 220, 100%, 74%;
+  --callout-success: var(--accent-h), var(--accent-s), var(--accent-l);
+  --callout-question: 42, 100%, 74%;
+  --callout-warning: 30, 100%, 67%;
+  --callout-important: 285, 100%, 81%;
+  --callout-fail: 0, 100%, 71%;
+  --callout-error: 0, 100%, 71%;
+  --callout-bug: 0, 100%, 71%;
+  --callout-example: 315, 100%, 77%;
+  --callout-quote: var(--accent-h), 20%, 60%;
 }
 
 
 /* ==========================================================================
-   5.  TYPOGRAPHY
+   4.  TYPOGRAPHY
    ========================================================================== */
 body {
   --font-monospace-theme: var(--term-mono-font);
-  --font-text-theme: var(--term-mono-font);   /* monospace body = the look */
+  --font-text-theme: var(--term-mono-font);
   --font-interface-theme: var(--term-mono-font);
   --font-text-size: var(--term-body-size);
 
@@ -290,74 +567,40 @@ body {
   --italic-color: var(--term-fg);
   --code-size: 0.9em;
   --line-height-normal: 1.6;
+  --line-height-tight: 1.3;
 }
 
-/* Proportional body font (Style Settings toggle) keeps UI + code monospace */
+/* Proportional body text. UI and code stay monospace. */
 body.terminal-prop-body {
   --font-text-theme: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
   --line-height-normal: 1.7;
 }
 
-/* tame ligatures from Fira/JetBrains unless inside code */
-.markdown-rendered, .cm-editor { font-variant-ligatures: none; }
-.HyperMD-codeblock, .cm-inline-code, code, pre, .markdown-rendered code {
-  font-variant-ligatures: contextual;
+/* Ligatures belong in code, not in prose. */
+.markdown-rendered,
+.cm-editor { font-variant-ligatures: none; }
+.HyperMD-codeblock, .cm-inline-code, code, pre,
+.markdown-rendered code { font-variant-ligatures: contextual; }
+
+/* Display face on the things that frame the interface. */
+.markdown-rendered h1, .markdown-rendered h2, .markdown-rendered h3,
+.cm-header-1, .cm-header-2, .cm-header-3,
+.inline-title,
+.view-header-title,
+.nav-folder-title-content,
+.status-bar-item,
+.modal-title,
+.setting-item-name {
+  font-family: var(--term-display-font);
+  letter-spacing: 0.01em;
 }
 
 
 /* ==========================================================================
-   6.  COMPONENTS
+   5.  COMPONENTS
    ========================================================================== */
 
-/* --- Headings: bright phosphor, tighter, with optional > prompt ---------- */
-.theme-dark {
-  --h1-color: var(--term-fg-bright);
-  --h2-color: var(--term-fg-bright);
-  --h3-color: var(--term-fg-bright);
-  --h4-color: var(--term-fg-bright);
-  --h5-color: var(--term-fg);
-  --h6-color: var(--term-fg-dim);
-  --h1-weight: 700;
-  --h2-weight: 700;
-  --h3-weight: 600;
-  --inline-title-color: var(--term-fg-bright);
-}
-.markdown-rendered h1, .markdown-rendered h2, .markdown-rendered h3,
-.markdown-rendered h4, .markdown-rendered h5, .markdown-rendered h6,
-.cm-header, .inline-title {
-  letter-spacing: 0.01em;
-  text-transform: none;
-}
-
-/* heading prompts in reading view */
-body.terminal-prompts .markdown-preview-view h1::before { content: "# "; color: var(--term-fg-dim); }
-body.terminal-prompts .markdown-preview-view h2::before { content: "## "; color: var(--term-fg-dim); }
-body.terminal-prompts .markdown-preview-view h3::before { content: "### "; color: var(--term-fg-dim); }
-body.terminal-prompts .markdown-preview-view h4::before { content: "#### "; color: var(--term-fg-faint); }
-body.terminal-prompts .markdown-preview-view h5::before { content: "##### "; color: var(--term-fg-faint); }
-body.terminal-prompts .markdown-preview-view h6::before { content: "###### "; color: var(--term-fg-faint); }
-
-/* blinking block cursor after the note title — pure terminal flourish */
-body.terminal-prompts .inline-title::after {
-  content: "_";
-  margin-left: 0.15em;
-  color: var(--term-fg-bright);
-  animation: term-blink 1.1s steps(1) infinite;
-}
-@keyframes term-blink { 0%, 50% { opacity: 1; } 50.01%, 100% { opacity: 0; } }
-
-/* --- Links --------------------------------------------------------------- */
-.markdown-rendered a, .cm-link, .cm-hmd-internal-link, a.internal-link {
-  text-underline-offset: 2px;
-  text-decoration-thickness: 1px;
-}
-
-/* --- Inline code & code blocks ------------------------------------------- */
-.theme-dark {
-  --code-background: var(--term-bg-raised);
-  --code-normal: var(--term-fg);
-  --code-comment: var(--term-fg-dim);
-}
+/* --- inline code and code blocks ----------------------------------------- */
 code, .cm-inline-code, .markdown-rendered code {
   background: var(--term-bg-raised);
   border: 1px solid var(--term-border);
@@ -365,166 +608,127 @@ code, .cm-inline-code, .markdown-rendered code {
   color: var(--term-fg-bright);
   padding: 0.05em 0.35em;
 }
-.markdown-rendered pre, .HyperMD-codeblock {
-  background: var(--term-bg-alt) !important;
-}
+.markdown-rendered pre,
+.HyperMD-codeblock { background: var(--term-bg-raised) !important; }
 .markdown-rendered pre {
   border: 1px solid var(--term-border);
   border-radius: var(--term-radius);
-  box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.4);
 }
 .markdown-rendered pre code {
   border: none;
   background: transparent;
   color: var(--term-fg);
+  padding: 0;
 }
 
-/* Prism syntax — recoloured into the phosphor family */
-.token.comment, .token.prolog, .token.doctype, .token.cdata { color: var(--term-fg-faint); font-style: italic; }
-.token.punctuation { color: var(--term-fg-dim); }
-.token.property, .token.tag, .token.boolean, .token.number, .token.constant,
-.token.symbol, .token.keyword, .token.atrule { color: var(--term-fg-bright); }
-.token.selector, .token.string, .token.char, .token.attr-value, .token.builtin,
-.token.inserted { color: var(--term-fg); }
-.token.operator, .token.entity, .token.url, .token.variable, .token.function,
-.token.class-name, .token.attr-name { color: var(--term-fg-dim); }
-.token.important, .token.bold { font-weight: 700; color: var(--term-fg-bright); }
-
-/* --- Blockquotes --------------------------------------------------------- */
-.theme-dark {
-  --blockquote-border-color: var(--term-fg-dim);
-  --blockquote-color: var(--term-fg-dim);
+/* --------------------------------------------------------------------------
+   Prism syntax. v1 put functions, variables, class names and operators on
+   --term-fg-dim, the dimmest readable tier, while numbers and booleans got
+   the brightest. Identifiers are what you read, so they get body weight.
+   Structure runs down the monochrome ramp; literals get the one accent.
+   -------------------------------------------------------------------------- */
+.token.comment, .token.prolog, .token.doctype, .token.cdata {
+  color: var(--term-fg-faint); font-style: italic;
 }
+.token.punctuation, .token.operator, .token.entity {
+  color: var(--term-fg-dim);
+}
+.token.function, .token.class-name, .token.variable,
+.token.attr-name, .token.property, .token.symbol {
+  color: var(--term-fg);
+}
+.token.keyword, .token.atrule, .token.selector, .token.tag, .token.important {
+  color: var(--term-fg-bright); font-weight: 600;
+}
+.token.string, .token.char, .token.attr-value, .token.number,
+.token.boolean, .token.constant, .token.regex, .token.url, .token.builtin {
+  color: var(--term-ansi-cyan);
+}
+.token.inserted { color: var(--term-fg-bright); }
+.token.deleted  { color: var(--term-ansi-red); }
+.token.bold     { font-weight: 700; color: var(--term-fg-bright); }
+
+/* --- blockquotes: a left rule, like a quoted diff ------------------------ */
 .markdown-rendered blockquote {
-  border-left: 2px solid var(--term-fg-dim);
-  background: rgba(127, 227, 140, 0.03);
+  border-left: 2px solid var(--term-border-hi);
+  background: var(--term-tint-1);
   font-style: italic;
+  padding-left: 1em;
 }
 
-/* --- Callouts ------------------------------------------------------------ */
+/* --- callouts: framed, with the title on the rule ------------------------ */
 .callout {
   --callout-border-width: 1px;
-  --callout-border-opacity: 0.4;
+  --callout-border-opacity: 0.55;
   --callout-radius: var(--term-radius);
   background: var(--term-bg-raised);
-  border: 1px solid var(--term-border);
+  border: 1px solid var(--term-border-hi);
+}
+.callout-title {
+  font-family: var(--term-display-font);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 0.82em;
 }
 
-/* --- Horizontal rule ----------------------------------------------------- */
+/* --- horizontal rule ----------------------------------------------------- */
 .markdown-rendered hr, .cm-hr {
   border: none;
-  border-top: 1px dashed var(--term-border-hi);
+  border-top: 1px solid var(--term-border-hi);
 }
 
-/* --- Tags ---------------------------------------------------------------- */
-.theme-dark {
-  --tag-color: var(--term-bg);
-  --tag-background: var(--term-fg-dim);
-  --tag-border-color: var(--term-fg-dim);
-  --tag-radius: var(--term-radius);
-  --tag-decoration: none;
-}
+/* --- tags ---------------------------------------------------------------- */
 a.tag {
-  border: 1px solid var(--term-fg-dim);
-  background: transparent;
-  color: var(--term-fg-dim);
-  padding: 0 0.4em;
+  border: 1px solid var(--tag-border-color);
+  background: var(--tag-background);
+  color: var(--tag-color);
 }
-a.tag:hover { color: var(--term-fg-bright); border-color: var(--term-fg-bright); }
+a.tag:hover {
+  color: var(--term-fg-bright);
+  border-color: var(--term-fg-bright);
+  background: var(--term-tint-2);
+}
 
-/* --- Checkboxes: square terminal boxes ----------------------------------- */
-.theme-dark {
-  --checkbox-radius: 0px;
-  --checkbox-color: var(--term-fg-bright);
-  --checkbox-color-hover: var(--term-fg);
-  --checkbox-border-color: var(--term-fg-dim);
-  --checkbox-marker-color: var(--term-bg);
-}
+/* --- checkboxes ---------------------------------------------------------- */
 input[type="checkbox"] { border-width: 1px; }
 
-/* --- Tables -------------------------------------------------------------- */
-.theme-dark {
-  --table-border-color: var(--term-border);
-  --table-header-background: var(--term-bg-raised);
-  --table-row-alt-background: rgba(127, 227, 140, 0.025);
+/* --- tables: cell borders on every edge, so junctions read as ─┼─ -------- */
+.markdown-rendered table {
+  border: 1px solid var(--term-border-hi);
+  border-collapse: collapse;
 }
-.markdown-rendered table { border: 1px solid var(--term-border); }
-.markdown-rendered th { color: var(--term-fg-bright); font-weight: 700; }
+.markdown-rendered th,
+.markdown-rendered td {
+  border: 1px solid var(--term-border);
+}
+.markdown-rendered th {
+  color: var(--term-fg-bright);
+  font-weight: 700;
+  font-family: var(--term-display-font);
+  font-size: 0.86em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-bottom: 2px solid var(--term-border-hi);
+}
 
-/* --- Highlight ==text== -------------------------------------------------- */
+/* --- highlight ==text== -------------------------------------------------- */
 .markdown-rendered mark, .cm-highlight {
   background: var(--term-highlight);
   color: var(--term-fg-bright);
   border-radius: var(--term-radius);
 }
 
-/* --- Active line in editor ----------------------------------------------- */
-.cm-active.cm-line, .cm-activeLineGutter {
-  background: rgba(127, 227, 140, 0.035);
+/* --- active line --------------------------------------------------------- */
+.cm-active.cm-line,
+.cm-activeLineGutter { background: var(--term-tint-1); }
+
+/* --- links: keep the underline off the descenders ----------------------- */
+.markdown-rendered a, .cm-link, .cm-hmd-internal-link, a.internal-link {
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
 }
 
-
-/* ==========================================================================
-   7.  CHROME  (sidebars, tabs, status bar, scrollbars, ribbon)
-   ========================================================================== */
-.theme-dark {
-  /* tabs */
-  --tab-background-active: var(--term-bg);
-  --tab-text-color-focused-active-current: var(--term-fg-bright);
-  --tab-outline-color: var(--term-border);
-  --tab-outline-width: 1px;
-
-  /* title bar / window frame */
-  --titlebar-background: var(--term-bg-alt);
-  --titlebar-background-focused: var(--term-bg-alt);
-  --titlebar-text-color: var(--term-fg-dim);
-  --titlebar-text-color-focused: var(--term-fg-bright);
-  --divider-color: var(--term-border);
-
-  /* status bar — styled like a shell status line */
-  --status-bar-background: var(--term-bg-alt);
-  --status-bar-text-color: var(--term-fg-dim);
-  --status-bar-border-color: var(--term-border);
-
-  /* ribbon */
-  --ribbon-background: var(--term-bg-alt);
-  --ribbon-background-collapsed: var(--term-bg-alt);
-
-  /* scrollbars */
-  --scrollbar-bg: transparent;
-  --scrollbar-thumb-bg: var(--term-border);
-  --scrollbar-active-thumb-bg: var(--term-fg-dim);
-
-  /* graph view */
-  --graph-line: var(--term-border-hi);
-  --graph-node: var(--term-fg);
-  --graph-node-focused: var(--term-fg-bright);
-  --graph-node-tag: var(--term-fg-dim);
-  --graph-node-unresolved: var(--term-fg-faint);
-  --graph-text: var(--term-fg);
-}
-
-.status-bar {
-  font-size: 0.8em;
-  letter-spacing: 0.02em;
-  border-top: 1px solid var(--term-border);
-}
-
-/* file explorer: active file glows */
-.nav-file-title.is-active,
-.nav-folder-title.is-active {
-  color: var(--term-fg-bright);
-}
-.tree-item-self.is-active { background: rgba(127, 227, 140, 0.06); }
-
-/* command palette / quick switcher prompt line */
-.prompt {
-  border: 1px solid var(--term-border-hi);
-  border-radius: var(--term-radius);
-}
-.prompt-input { color: var(--term-fg-bright); }
-
-/* buttons */
+/* --- buttons ------------------------------------------------------------- */
 button:not(.clickable-icon) {
   font-family: var(--term-mono-font);
   border: 1px solid var(--term-border-hi);
@@ -540,12 +744,288 @@ button.mod-cta:hover {
   color: var(--term-bg);
 }
 
+/* --- command palette / quick switcher ----------------------------------- */
+.prompt {
+  border: 1px solid var(--term-border-hi);
+  border-radius: var(--term-radius);
+}
+.prompt-input { color: var(--term-fg-bright); }
+.suggestion-item.is-selected { background: var(--term-tint-2); }
+
 
 /* ==========================================================================
-   8.  CRT EFFECTS
+   6.  TUI CHROME
+   The Direction A payload. Structure does the separating, so the interface
+   reads as lazygit or btop rather than as a photograph of a CRT.
    ========================================================================== */
 
-/* --- Phosphor bloom: soft glow on bright text ---------------------------- */
+/* --------------------------------------------------------------------------
+   6a. Box-drawing pane frames.
+   Each sidebar pane becomes a framed box with its title notched into the top
+   rule. The notch is punched by giving the title the same background as the
+   pane, so it erases the border behind itself.
+
+   Three things about Obsidian's own layout drive how this is built:
+     .workspace-leaf        contain: strict, overflow: hidden, height: 100%
+     .workspace-leaf-content  height: 100%, overflow: hidden, position: relative
+     .view-content          height: calc(100% - var(--header-height))
+   So the frame's inset is padding on the leaf, not margin on the leaf content
+   (which is height:100% and would overflow), and the header is shortened by
+   overriding --header-height rather than by setting height:auto, so that
+   .view-content's calc stays in agreement with it.
+   -------------------------------------------------------------------------- */
+body.terminal-frames .mod-left-split .workspace-leaf,
+body.terminal-frames .mod-right-split .workspace-leaf {
+  box-sizing: border-box;
+  padding: 9px 7px 7px;
+}
+
+body.terminal-frames .mod-left-split .workspace-leaf-content,
+body.terminal-frames .mod-right-split .workspace-leaf-content {
+  --header-height: 24px;
+  --view-header-height: 24px;
+  border: 1px solid var(--term-border-hi);
+  border-radius: var(--term-radius);
+  background: var(--term-bg-alt);
+  overflow: visible;
+}
+
+body.terminal-frames .mod-left-split .view-header,
+body.terminal-frames .mod-right-split .view-header {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0 8px;
+  overflow: visible;
+  align-items: center;
+}
+
+body.terminal-frames .mod-left-split .view-header-title-container,
+body.terminal-frames .mod-right-split .view-header-title-container {
+  flex: 0 1 auto;
+  overflow: visible;
+}
+/* Obsidian's own fade-out gradient over a long title. */
+body.terminal-frames .mod-left-split .view-header-title-container::after,
+body.terminal-frames .mod-right-split .view-header-title-container::after {
+  display: none;
+}
+
+/* Lift the title by half the header height so it lands on the top rule. */
+body.terminal-frames .mod-left-split .view-header-title,
+body.terminal-frames .mod-right-split .view-header-title {
+  position: relative;
+  top: calc(var(--header-height) / -2);
+  background: var(--term-bg-alt);
+  color: var(--term-fg-dim);
+  padding: 0 0.55em;
+  font-size: 0.7em;
+  font-weight: 600;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: visible;
+}
+
+/* The pane's action buttons ride the rule too, like box controls. */
+body.terminal-frames .mod-left-split .view-actions,
+body.terminal-frames .mod-right-split .view-actions {
+  position: relative;
+  top: calc(var(--header-height) / -2);
+  background: var(--term-bg-alt);
+  padding: 0 0.15em;
+  margin-left: auto;
+}
+
+/* The frame highlights when the pane has focus. */
+body.terminal-frames .mod-left-split .workspace-leaf.mod-active .workspace-leaf-content,
+body.terminal-frames .mod-right-split .workspace-leaf.mod-active .workspace-leaf-content {
+  border-color: var(--term-fg-dim);
+}
+body.terminal-frames .mod-left-split .workspace-leaf.mod-active .view-header-title,
+body.terminal-frames .mod-right-split .workspace-leaf.mod-active .view-header-title {
+  color: var(--term-fg-bright);
+}
+
+/* With view headers turned off there is no title to notch, so the frame just
+   becomes a plain box. Give it back its top padding. */
+body:not(.show-view-header).terminal-frames .mod-left-split .view-content,
+body:not(.show-view-header).terminal-frames .mod-right-split .view-content {
+  padding-top: 8px;
+}
+
+/* --------------------------------------------------------------------------
+   6b. Tree glyphs. Text triangles instead of a rotating SVG chevron.
+   -------------------------------------------------------------------------- */
+body.terminal-tree-glyphs .tree-item-self .collapse-icon > svg,
+body.terminal-tree-glyphs .nav-folder-title .collapse-icon > svg {
+  display: none;
+}
+body.terminal-tree-glyphs .tree-item-self .collapse-icon {
+  transform: none !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+body.terminal-tree-glyphs .tree-item-self .collapse-icon::before {
+  content: "\25BE";               /* down triangle, expanded */
+  font-family: var(--term-mono-font);
+  font-size: 0.82em;
+  line-height: 1;
+  color: var(--nav-collapse-icon-color);
+}
+body.terminal-tree-glyphs .tree-item-self .collapse-icon.is-collapsed::before,
+body.terminal-tree-glyphs .tree-item.is-collapsed > .tree-item-self .collapse-icon::before,
+body.terminal-tree-glyphs .nav-folder.is-collapsed > .nav-folder-title .collapse-icon::before {
+  content: "\25B8";               /* right triangle, collapsed */
+  color: var(--nav-collapse-icon-color-collapsed);
+}
+
+/* Leaf files get a dim bullet so the tree has a visible spine. */
+body.terminal-tree-glyphs .nav-file-title-content::before {
+  content: "\00B7\0020";
+  color: var(--term-fg-faint);
+}
+
+/* --------------------------------------------------------------------------
+   6c. Ruled headings. Replaces v1's "#" / "##" prompts, which every theme in
+   this genre already had. h1 gets a double rule, h2 single, h3 dashed.
+   -------------------------------------------------------------------------- */
+body.terminal-rule-headings .markdown-rendered h1,
+body.terminal-rule-headings .markdown-rendered h2,
+body.terminal-rule-headings .markdown-rendered h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.65em;
+}
+body.terminal-rule-headings .markdown-rendered h1::after,
+body.terminal-rule-headings .markdown-rendered h2::after,
+body.terminal-rule-headings .markdown-rendered h3::after {
+  content: "";
+  flex: 1 1 2em;
+  min-width: 1.5em;
+  align-self: center;
+}
+body.terminal-rule-headings .markdown-rendered h1::after {
+  border-top: 3px double var(--term-border-hi);
+}
+body.terminal-rule-headings .markdown-rendered h2::after {
+  border-top: 1px solid var(--term-border-hi);
+}
+body.terminal-rule-headings .markdown-rendered h3::after {
+  border-top: 1px dashed var(--term-border);
+}
+
+/* --------------------------------------------------------------------------
+   6d. Segmented status line.
+   -------------------------------------------------------------------------- */
+body.terminal-statusline .status-bar {
+  font-family: var(--term-display-font);
+  font-size: 0.76em;
+  letter-spacing: 0.08em;
+  border-top: 1px solid var(--term-border-hi);
+  padding: 0;
+  gap: 0;
+}
+body.terminal-statusline .status-bar .status-bar-item {
+  padding: 0 0.85em;
+  border-left: 1px solid var(--term-border);
+  display: flex;
+  align-items: center;
+}
+body.terminal-statusline .status-bar .status-bar-item:first-child {
+  border-left: none;
+}
+body.terminal-statusline .status-bar .status-bar-item:hover {
+  background: var(--term-tint-1);
+  color: var(--term-fg);
+}
+
+/* Powerline arrows instead of pipes. Needs a Nerd Font. */
+body.terminal-powerline .status-bar .status-bar-item {
+  border-left: none;
+  position: relative;
+}
+body.terminal-powerline .status-bar .status-bar-item::after {
+  content: "\E0B0";
+  position: absolute;
+  right: -0.42em;
+  color: var(--term-border-hi);
+  font-size: 1.35em;
+  line-height: 1;
+  pointer-events: none;
+}
+body.terminal-powerline .status-bar .status-bar-item:last-child::after {
+  content: none;
+}
+
+/* --------------------------------------------------------------------------
+   6e. Tabs, bracketed like a window list.
+   -------------------------------------------------------------------------- */
+.workspace-tab-header-inner-title {
+  font-size: 0.86em;
+  letter-spacing: 0.04em;
+}
+.workspace-tab-header.is-active {
+  box-shadow: inset 0 2px 0 0 var(--term-fg-bright);
+}
+
+/* --------------------------------------------------------------------------
+   6f. Optional line-number gutter in the editor.
+   -------------------------------------------------------------------------- */
+body.terminal-gutter .cm-contentContainer .cm-content {
+  counter-reset: term-line;
+}
+body.terminal-gutter .cm-content > .cm-line {
+  counter-increment: term-line;
+  position: relative;
+}
+body.terminal-gutter .cm-content > .cm-line::before {
+  content: counter(term-line);
+  position: absolute;
+  left: -3.4em;
+  width: 2.6em;
+  text-align: right;
+  color: var(--term-fg-faint);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.82em;
+  pointer-events: none;
+  user-select: none;
+}
+
+
+/* ==========================================================================
+   7.  CRT EFFECTS
+   All of it scoped to the note pane. v1 put a fixed, full-window, black
+   overlay at z-index 9999, which cost the muted text tier 2.5x of its
+   luminance and darkened every modal. The raster is now additive white, so
+   it lifts foreground and background together and costs almost nothing.
+   ========================================================================== */
+
+/* --- scanlines + tube vignette, on the note surface only ----------------- */
+body.terminal-scanlines .mod-root .workspace-leaf-content::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  background:
+    /* raster: additive, 3px period */
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, var(--term-scanline-opacity)) 0 1px,
+      transparent 1px 3px
+    ),
+    /* tube curvature, confined to this pane */
+    radial-gradient(
+      ellipse 85% 85% at center,
+      rgba(0, 0, 0, 0) 62%,
+      rgba(0, 0, 0, var(--term-vignette)) 100%
+    );
+}
+
+/* --- phosphor bloom ------------------------------------------------------ */
 body.terminal-glow .markdown-rendered h1,
 body.terminal-glow .markdown-rendered h2,
 body.terminal-glow .markdown-rendered h3,
@@ -557,97 +1037,161 @@ body.terminal-glow .cm-url,
 body.terminal-glow a.internal-link,
 body.terminal-glow strong,
 body.terminal-glow .cm-strong {
-  text-shadow: 0 0 6px var(--term-glow);
+  text-shadow: 0 0 7px var(--term-glow);
 }
-/* very faint bloom on body text for the authentic blur — keep it low */
-body.terminal-glow .markdown-rendered p,
-body.terminal-glow .cm-line {
-  text-shadow: 0 0 1.5px rgba(127, 227, 140, 0.18);
+/* No bloom on body text. v1 blurred every paragraph, which cost acuity for
+   no visual gain once the raster was doing the work. */
+
+/* --- convergence error: sub-pixel red/cyan split on headings ------------- */
+body.terminal-aberration .markdown-rendered h1,
+body.terminal-aberration .markdown-rendered h2,
+body.terminal-aberration .cm-header-1,
+body.terminal-aberration .cm-header-2,
+body.terminal-aberration .inline-title {
+  text-shadow:
+    -0.5px 0 0 rgba(255, 0, 80, 0.34),
+     0.5px 0 0 rgba(0, 210, 255, 0.34),
+     0 0 7px var(--term-glow);
 }
 
-/* --- Scanlines + vignette ------------------------------------------------ */
-body.terminal-scanlines::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  pointer-events: none;
-  background:
-    /* scanlines */
-    repeating-linear-gradient(
-      to bottom,
-      rgba(0, 0, 0, 0) 0px,
-      rgba(0, 0, 0, 0) 1px,
-      rgba(0, 0, 0, var(--term-scanline-opacity)) 2px,
-      rgba(0, 0, 0, var(--term-scanline-opacity)) 3px
-    ),
-    /* vignette / tube curvature */
-    radial-gradient(
-      ellipse at center,
-      rgba(0, 0, 0, 0) 55%,
-      rgba(0, 0, 0, 0.35) 100%
-    );
+/* --- phosphor persistence: colours decay instead of snapping ------------- */
+body.terminal-persistence .tree-item-self,
+body.terminal-persistence .nav-file-title,
+body.terminal-persistence .nav-folder-title,
+body.terminal-persistence .workspace-tab-header,
+body.terminal-persistence .status-bar-item,
+body.terminal-persistence .clickable-icon,
+body.terminal-persistence a.tag,
+body.terminal-persistence button:not(.clickable-icon) {
+  transition: color 260ms ease-out, background-color 320ms ease-out,
+              border-color 260ms ease-out;
 }
 
-/* --- Optional flicker ---------------------------------------------------- */
-body.terminal-flicker .app-container {
-  animation: term-flicker 6s infinite steps(60);
-}
-@keyframes term-flicker {
-  0%, 96%, 100% { opacity: 1; }
-  97% { opacity: 0.96; }
-  98% { opacity: 1; }
-  99% { opacity: 0.94; }
-}
-
-/* --- Block caret in the editor ------------------------------------------- */
+/* --- block caret --------------------------------------------------------- */
 body.terminal-block-caret .cm-editor .cm-cursor.cm-cursor-primary {
   border-left: 0.55em solid var(--term-fg-bright);
   border-right: none;
   margin-left: 0;
-  box-shadow: 0 0 6px var(--term-glow);
-  opacity: 0.85;
+  box-shadow: 0 0 7px var(--term-glow);
+  opacity: 0.82;
 }
-/* keep the secondary (multi-cursor) carets thin */
 body.terminal-block-caret .cm-editor .cm-cursor.cm-cursor-secondary {
   border-left-color: var(--term-fg-dim);
 }
 
+/* Blinking block after the note title. Tied to the caret toggle now that
+   the heading-prompt toggle is gone. */
+body.terminal-block-caret .inline-title::after {
+  content: "\2588";
+  margin-left: 0.18em;
+  color: var(--term-fg-bright);
+  font-size: 0.78em;
+  animation: term-blink 1.1s steps(1) infinite;
+}
+@keyframes term-blink {
+  0%, 50% { opacity: 1; }
+  50.01%, 100% { opacity: 0; }
+}
+
+/* --- optional flicker, scoped to the note panes -------------------------- */
+body.terminal-flicker .mod-root .workspace-leaf-content {
+  animation: term-flicker 6s infinite steps(60);
+}
+@keyframes term-flicker {
+  0%, 96%, 100% { opacity: 1; }
+  97% { opacity: 0.965; }
+  98% { opacity: 1; }
+  99% { opacity: 0.945; }
+}
+
 
 /* ==========================================================================
-   LIGHT MODE  —  a "paper terminal" fallback (dot-matrix printout vibe)
-   The theme is built for dark; this keeps it legible if a user flips modes.
+   8.  MOTION AND ACCESSIBILITY
+   v1 had an indefinitely blinking caret and a full-window flicker with no
+   reduced-motion guard, which is a WCAG 2.2.2 problem.
    ========================================================================== */
-.theme-light {
-  --term-bg: #f4f1e8;  --term-bg-alt: #ece8db;  --term-bg-raised: #e6e1d2;
-  --term-border: #cfc8b4;  --term-border-hi: #a89f86;
-  --term-fg: #2f4a32;  --term-fg-bright: #0f6b2e;  --term-fg-dim: #5e6b50;  --term-fg-faint: #9aa088;
-  --term-glow: rgba(15, 107, 46, 0.0);
-  --term-selection: rgba(15, 107, 46, 0.16);  --term-highlight: rgba(15, 107, 46, 0.20);
-  --accent-h: 140; --accent-s: 70%; --accent-l: 28%;
-
-  --term-mono-font: 'JetBrains Mono', 'Fira Code', 'SF Mono', Menlo, Consolas, monospace;
-  --term-body-size: 16px;
-  --term-radius: 0px;
-
-  --background-primary: var(--term-bg);
-  --background-primary-alt: var(--term-bg-raised);
-  --background-secondary: var(--term-bg-alt);
-  --background-secondary-alt: var(--term-bg);
-  --background-modifier-border: var(--term-border);
-  --background-modifier-border-hover: var(--term-border-hi);
-  --background-modifier-border-focus: var(--term-fg-bright);
-
-  --text-normal: var(--term-fg);
-  --text-muted: var(--term-fg-dim);
-  --text-faint: var(--term-fg-faint);
-  --text-accent: var(--term-fg-bright);
-  --text-on-accent: var(--term-bg);
-  --interactive-accent: var(--term-fg-bright);
-  --link-color: var(--term-fg-bright);
-  --caret-color: var(--term-fg-bright);
-  --radius-s: var(--term-radius); --radius-m: var(--term-radius); --radius-l: var(--term-radius);
+@media (prefers-reduced-motion: reduce) {
+  body.terminal-block-caret .inline-title::after,
+  body.terminal-flicker .mod-root .workspace-leaf-content {
+    animation: none;
+  }
+  body.terminal-persistence .tree-item-self,
+  body.terminal-persistence .nav-file-title,
+  body.terminal-persistence .nav-folder-title,
+  body.terminal-persistence .workspace-tab-header,
+  body.terminal-persistence .status-bar-item,
+  body.terminal-persistence .clickable-icon,
+  body.terminal-persistence a.tag,
+  body.terminal-persistence button:not(.clickable-icon) {
+    transition: none;
+  }
 }
-/* no bloom / scanlines glow in light mode */
-.theme-light.terminal-glow .markdown-rendered p,
-.theme-light.terminal-glow .cm-line { text-shadow: none; }
+
+/* Keyboard focus must stay visible even with zero radius and hairline rules. */
+:focus-visible {
+  outline: 2px solid var(--term-fg-bright);
+  outline-offset: 1px;
+}
+
+/* Light mode never blooms. */
+body.theme-light.terminal-glow .markdown-rendered h1,
+body.theme-light.terminal-glow .markdown-rendered h2,
+body.theme-light.terminal-glow .markdown-rendered h3,
+body.theme-light.terminal-glow .cm-header,
+body.theme-light.terminal-glow .inline-title,
+body.theme-light.terminal-glow .markdown-rendered a,
+body.theme-light.terminal-glow .cm-link,
+body.theme-light.terminal-glow .cm-url,
+body.theme-light.terminal-glow a.internal-link,
+body.theme-light.terminal-glow strong,
+body.theme-light.terminal-glow .cm-strong {
+  text-shadow: none;
+}
+body.theme-light.terminal-block-caret .cm-editor .cm-cursor.cm-cursor-primary {
+  box-shadow: none;
+}
+
+
+/* ==========================================================================
+   9.  SEMANTIC ACCENTS
+   The rest of the ANSI set, used only where a distinction carries meaning
+   that the monochrome ramp cannot.
+   ========================================================================== */
+
+/* Search and suggestion matches: the one place yellow earns its keep. */
+.search-result-file-matched-text,
+.suggestion-highlight,
+.obsidian-search-match-highlight {
+  background: color-mix(in srgb, var(--term-ansi-yellow) 30%, transparent);
+  color: var(--term-fg-bright);
+}
+body {
+  --highlight-bg-color: color-mix(in srgb, var(--term-ansi-yellow) 30%, transparent);
+  --highlight-selected-bg-color: color-mix(in srgb, var(--term-ansi-orange) 45%, transparent);
+}
+
+/* Frontmatter and property keys read as configuration, not prose. */
+.metadata-property-key,
+.metadata-property-icon,
+.cm-hmd-frontmatter.cm-def {
+  color: var(--term-ansi-blue);
+}
+
+/* Maths and embeds sit outside the text stream. */
+.math,
+.markdown-rendered .internal-embed,
+.cm-formatting-math {
+  color: var(--term-ansi-violet);
+}
+.markdown-rendered .internal-embed {
+  border-left: 2px solid color-mix(in srgb, var(--term-ansi-violet) 60%, transparent);
+}
+
+/* Drag targets need to be obvious against a hairline interface. */
+.workspace-leaf.is-highlighted,
+.nav-file-title.is-being-dragged-over,
+.nav-folder-title.is-being-dragged-over,
+.drop-indicator {
+  background: var(--term-tint-3);
+  outline: 1px dashed var(--term-fg-bright);
+}
