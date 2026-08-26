@@ -234,7 +234,7 @@ body.theme-dark,
 body.theme-dark.terminal-green {
   --term-bg: #0a0c0b;  --term-bg-alt: #0e1110;  --term-bg-raised: #141816;
   --term-border: #202623;  --term-border-hi: #374c42;
-  --term-fg: #a8e6b8;  --term-fg-bright: #5cff9e;  --term-fg-dim: #7fc294;  --term-fg-faint: #5a8869;  --term-fg-dim-base: #7fc294;
+  --term-fg: #9ce8ac;  --term-fg-bright: #5cff9e;  --term-fg-dim: #7fc294;  --term-fg-faint: #5a8869;  --term-fg-dim-base: #7fc294;
   --term-glow: rgba(92, 255, 158, 0.45);
   --accent-h: 149; --accent-s: 100%; --accent-l: 68%;
 }
