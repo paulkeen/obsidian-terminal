@@ -1,87 +1,110 @@
+<div align="center">
+
 # Terminal
 
-A monospace theme for Obsidian built around the terminal *interface* rather than
-the terminal *photograph*. Box-drawing pane frames, tree glyphs, ruled headings
-and a segmented status line, in the spirit of lazygit, btop and ranger. The CRT
-effects are still here, but they are scoped to the note surface so they no
-longer make the chrome hard to read.
+**A TUI theme for Obsidian.** Box-drawing panes, tree glyphs, ruled headings and
+a segmented status line, in the spirit of lazygit, btop and ranger. Four
+phosphor colours, dark and light. Readable at 2am on a dimmed laptop.
 
-Version 2 is a rebuild. See [Changes in v2](#changes-in-v2).
+[Install](#install) · [Settings](#settings) · [Fonts](#fonts) · [Changelog](CHANGELOG.md)
+
+</div>
+
+<!-- ────────────────────────────────────────────────────────────────────────
+     SCREENSHOTS GO HERE. Drop the files in assets/ and uncomment.
+     The community directory also needs assets/screenshot.png at 512x288.
+
+![Terminal](assets/hero.png)
+
+| Green | Amber |
+|:--:|:--:|
+| ![Green phosphor](assets/green.png) | ![Amber phosphor](assets/amber.png) |
+| **Cyan** | **Paper-white** |
+| ![Cyan](assets/cyan.png) | ![Paper-white](assets/white.png) |
+
+     ──────────────────────────────────────────────────────────────────────── -->
+
+## Why this one
+
+There are a lot of green-on-black CRT themes. This is not really one of them.
+
+**It looks like a terminal interface, not a photograph of a terminal.** The
+retro-computing look that has actually survived is the TUI: framed panes with
+titles notched into the border, tree glyphs, segmented status lines, box-drawing
+junctions in tables. That is what Terminal is built from. The CRT effects are
+here too, but they are seasoning rather than the meal.
+
+**It is legible.** Every text colour is measured against the surface it actually
+sits on, in all eight palettes. Body text clears 7:1 and muted text clears
+4.5:1, so the sidebar is readable with the backlight most of the way down. The
+scanlines are additive rather than subtractive, which means they add raster
+texture without eating your contrast the way a dark overlay does. There is a
+high-contrast toggle for bright rooms.
+
+**It gets out of the way.** Everything is driven through Obsidian's documented
+CSS variables rather than hard-coded element styles, so reading view, live
+preview, Canvas, graph, callouts and most community plugins work untouched. One
+mapping layer serves both colour modes, so light mode is a real theme rather
+than an afterthought.
 
 ## Features
 
 ### Terminal UI
 
 - **Box-drawing pane frames.** Right-sidebar panes render as framed boxes with
-  the title notched into the top rule, and the frame brightens on the focused
-  pane. The left sidebar is left unframed on purpose: the file tree already
-  reads as a container, so framing it made a box inside a box.
-- **Tree glyphs.** `▾` / `▸` text triangles instead of rotating SVG chevrons,
-  with a dim `·` spine on leaf files.
+  the title notched into the top rule. The frame brightens on the focused pane.
+- **Tree glyphs.** `▾` / `▸` text triangles instead of rotating chevrons, with a
+  dim `·` spine on files.
 - **Ruled headings.** Each heading trails a rule to the edge of the column:
   double for `h1`, solid for `h2`, dashed for `h3`.
 - **Segmented status line**, with optional Nerd Font powerline separators.
-- **Table junctions.** Borders on every cell edge, so intersections read
+- **Box-drawing tables.** Borders on every cell edge, so intersections read
   as `─┼─`.
 - **Optional line-number gutter** in the editor.
 
-### Colour
+### Four phosphors, two modes
 
-- **Four phosphors** (green P1, amber P3, cyan, paper-white VT220), each with a
-  matching light-mode paper palette. Eight palettes in total.
-- **Contrast validated.** Every text tier is measured against the surface it
-  actually sits on. Body text clears 7:1 and the muted tier clears 4.5:1 in all
-  eight palettes.
-- **A high-contrast toggle** for a dimmed laptop panel or a bright room.
-- **ANSI-16 semantics** used only where a distinction carries meaning the
-  monochrome ramp cannot: callout types, search matches, frontmatter keys, maths,
-  unresolved links, errors.
+| | Dark | Light |
+|---|---|---|
+| **Green** | P1 phosphor on near-black | dot-matrix printout |
+| **Amber** | P3 phosphor | tractor-feed paper |
+| **Cyan** | cold CRT | blueprint |
+| **Paper-white** | VT220 | plain laser print |
+
+Eight palettes, all contrast-validated. ANSI-16 colour is used only where a
+distinction carries meaning the monochrome ramp cannot: callout types, search
+matches, frontmatter keys, maths, unresolved links, errors.
 
 ### CRT
 
-- **Additive scanlines** over the note surface only. They lift foreground and
-  background together, so they cost under a point of contrast instead of the
-  five points the old black-bar overlay cost.
+- **Additive scanlines** over the note surface only, never the chrome.
 - **Tube vignette** confined to the note pane.
 - **Phosphor bloom** on headings, links and accents.
-- **Convergence error** (off by default): a sub-pixel red/cyan split on
+- **Convergence error** *(off by default)*: a sub-pixel red/cyan split on
   headings, like a misaligned electron gun.
-- **Phosphor persistence** (on by default): hover and selection colours decay
+- **Phosphor persistence** *(on by default)*: hover and selection colours decay
   instead of snapping.
 - **Block cursor**, and a blinking block after the note title.
-- **Screen flicker** (off by default).
+- **Screen flicker** *(off by default)*.
 
-Everything above is a toggle under **Settings → Style Settings → Terminal**.
+Motion respects `prefers-reduced-motion`.
 
-## Fonts
+## Install
 
-The default stack is deliberately not JetBrains Mono, which is the default in
-every theme in this genre. Nothing needs installing (the stack falls back), but
-the intended pairing is:
+### From Obsidian
 
-| Role | Font | Cost |
-|------|------|------|
-| Body, code, UI | [Monaspace Neon](https://monaspace.githubnext.com/) | free |
-| Headings, pane titles, status line | [Departure Mono](https://www.departuremono.com/) | free, OFL |
-| Emphasis | Monaspace Radon | free |
+**Settings → Appearance → Themes → Manage**, search for **Terminal**, install,
+then select it.
 
-Monaspace's five voices share identical metrics, so mixing them causes no
-reflow, and its texture healing fixes the spacing problem monospace body text
-normally has. Departure Mono ships box-drawing glyphs, which is why it pairs
-with the frames. [Berkeley Mono](https://berkeleygraphics.com/typefaces/berkeley-mono/)
-is the paid alternative if you want it.
+Then install the [Style Settings](https://github.com/mgmeyers/obsidian-style-settings)
+plugin to get the toggles. The theme works without it, but Style Settings is
+where all the configuration lives.
 
-> **If the fonts do not change:** Obsidian's own **Settings → Appearance →
-> Font** fields override the theme. Clear *Interface font* and *Text font* to
-> let the theme's stack apply.
+### Manually
 
-## Installation
-
-1. Copy `manifest.json` and `theme.css` into
-   `<your-vault>/.obsidian/themes/Terminal/`. The folder name must be exactly
-   `Terminal`, matching the `name` in `manifest.json`.
-2. Pick **Terminal** in **Settings → Appearance → Themes**.
-3. Install the **Style Settings** community plugin to get the toggles.
+Copy `manifest.json` and `theme.css` into
+`<your-vault>/.obsidian/themes/Terminal/`. The folder name must be exactly
+`Terminal`, matching the `name` in `manifest.json`.
 
 ```bash
 VAULT="$HOME/Documents/MyVault"
@@ -91,91 +114,110 @@ cp manifest.json theme.css "$VAULT/.obsidian/themes/Terminal/"
 
 `theme.css` hot-reloads on save. Changes to `manifest.json` need a restart.
 
-## Customising without Style Settings
+## Settings
 
-The palette is nine intermediate variables per scheme (`--term-bg`,
-`--term-fg`, `--term-fg-dim`, and so on) in section 2. Change those and
-everything recolours, including the derived tints, which are computed with
-`color-mix` rather than hard-coded.
+All under **Settings → Style Settings → Terminal**.
 
-Section 3 maps those onto Obsidian's semantic variables exactly once, at `body`
-scope, so both colour modes get the full theme.
+| Setting | Default | |
+|---|---|---|
+| Phosphor colour | Green | green / amber / cyan / paper-white |
+| High contrast | off | for a dimmed panel or a bright room |
+| Box-drawing pane frames | on | right sidebar |
+| Tree glyphs | on | `▾` / `▸` |
+| Ruled headings | on | |
+| Segmented status line | on | |
+| Powerline separators | off | needs a Nerd Font |
+| Line-number gutter | off | |
+| Scanlines | on | intensity slider |
+| Phosphor bloom | on | |
+| Convergence error | off | |
+| Phosphor persistence | on | |
+| Block cursor | on | |
+| Screen flicker | off | |
+| Proportional body font | off | keeps UI and code monospace |
 
-Toggle classes, if you want to hard-set them instead of using the plugin:
+Plus sliders for body size, corner radius, scanline intensity and vignette, and
+text fields for the two font stacks.
 
-| Toggle | Class | Default |
-|--------|-------|---------|
-| Phosphor | `terminal-green` / `-amber` / `-cyan` / `-white` | green |
-| High contrast | `terminal-hicontrast` | off |
-| Pane frames (right sidebar) | `terminal-frames` | on |
-| Tree glyphs | `terminal-tree-glyphs` | on |
-| Ruled headings | `terminal-rule-headings` | on |
-| Status line | `terminal-statusline` | on |
-| Powerline separators | `terminal-powerline` | off |
-| Line-number gutter | `terminal-gutter` | off |
-| Scanlines | `terminal-scanlines` | on |
-| Bloom | `terminal-glow` | on |
-| Convergence error | `terminal-aberration` | off |
-| Persistence | `terminal-persistence` | on |
-| Block cursor | `terminal-block-caret` | on |
-| Flicker | `terminal-flicker` | off |
-| Proportional body | `terminal-prop-body` | off |
+## Fonts
 
-## Changes in v2
+The default stack is deliberately not JetBrains Mono, which is the default in
+every theme in this genre. Nothing needs installing, the stack falls back
+cleanly, but the intended pairing is:
 
-The v1 CRT overlay was `position: fixed; inset: 0` at `z-index: 9999`, so it
-covered the whole application rather than the note. Measured on the muted text
-tier that every sidebar item uses, it cost 2.5x of text luminance and dropped
-contrast from 5.94:1 to 3.02:1. The vignette made it worse in one specific
-place: with default `farthest-corner` sizing its darkest band falls on the
-horizontal extremes, and a right sidebar is a narrow full-height strip sitting
-exactly there, so the top and bottom of the outline and backlink lists were the
-worst-lit pixels on screen at 2.67:1.
+| Role | Font | |
+|---|---|---|
+| Body, code, UI | [Monaspace Neon](https://monaspace.githubnext.com/) | free |
+| Headings, pane titles, status line | [Departure Mono](https://www.departuremono.com/) | free, OFL |
+| Emphasis | Monaspace Radon | free |
 
-Fixed, in order of how much each recovered:
+Monaspace's five voices share identical metrics, so mixing them causes no
+reflow, and its texture healing fixes the spacing problem monospace body text
+normally has. Departure Mono ships box-drawing glyphs, which is why it pairs
+with the frames. [Berkeley Mono](https://berkeleygraphics.com/typefaces/berkeley-mono/)
+is the paid alternative.
 
-1. The overlay is scoped to the note pane. It can no longer reach the sidebars,
-   and because it now lives inside a workspace leaf it can no longer cover
-   modals either.
-2. The raster is additive white instead of black bars. Dark bars crush
-   foreground and background together but the foreground loses far more
-   absolute luminance; light lines lift both.
-3. The vignette is confined to the note pane and defaults to `0.12`.
-4. The whole ramp moved up off near-black, and the gaps between tiers widened.
-5. `--term-fg-faint` no longer shares a value with `--term-border-hi`.
-6. A high-contrast toggle.
+> [!TIP]
+> **If the fonts do not change:** Obsidian's own **Settings → Appearance →
+> Font** fields override the theme. Clear *Interface font* and *Text font* to
+> let the theme's stack apply.
 
-Also fixed:
+## Customising
 
-- Selecting any phosphor but green used to break light mode entirely, because
-  `body.terminal-amber` (0-2-1) outranked a bare `.theme-light` (0-1-0). All
-  palettes are now mode-scoped.
-- Light mode was missing headings, tags, tables, checkboxes and the entire
-  chrome section, all of which were scoped to `.theme-dark`. The mapping layer
-  now sits at `body` scope.
-- Six hard-coded `rgba(127, 227, 140, …)` values kept hovers, blockquotes,
-  table stripes and the active line green under every phosphor. They are
-  derived from the palette now.
-- Obsidian's base ramp was collapsed (`--color-base-20`/`-25` and `-30`/`-35`
-  shared values), removing separation that built-in components rely on.
-- Syntax highlighting put functions, variables, class names and operators on
-  the dimmest readable tier while numbers got the brightest. Identifiers read
-  at body weight now.
-- No `prefers-reduced-motion` guard on an indefinitely blinking caret, which is
-  a WCAG 2.2.2 problem. The flicker also animated `opacity` on
-  `.app-container`, promoting the entire window to a composited layer.
-- `--tag-color` and `--tag-background` were set and then contradicted three
-  lines later.
+The palette is nine variables per scheme (`--term-bg`, `--term-fg`,
+`--term-fg-dim`, and so on) at the top of `theme.css`. Change those and
+everything recolours, including the hover, stripe and selection tints, which are
+`color-mix` derivations rather than hard-coded values.
 
-Removed: the `#` / `##` heading prompts, which every theme in this genre has.
-Ruled headings replace them.
+Below that, one mapping layer translates them onto Obsidian's semantic variables
+at `body` scope, so both colour modes inherit the whole theme.
+
+Toggle classes, if you would rather hard-set them than use the plugin:
+
+| Toggle | Class |
+|---|---|
+| Phosphor | `terminal-green` / `-amber` / `-cyan` / `-white` |
+| High contrast | `terminal-hicontrast` |
+| Pane frames | `terminal-frames` |
+| Tree glyphs | `terminal-tree-glyphs` |
+| Ruled headings | `terminal-rule-headings` |
+| Status line | `terminal-statusline` |
+| Powerline separators | `terminal-powerline` |
+| Line-number gutter | `terminal-gutter` |
+| Scanlines | `terminal-scanlines` |
+| Bloom | `terminal-glow` |
+| Convergence error | `terminal-aberration` |
+| Persistence | `terminal-persistence` |
+| Block cursor | `terminal-block-caret` |
+| Flicker | `terminal-flicker` |
+| Proportional body | `terminal-prop-body` |
 
 ## Compatibility
 
-The theme overrides documented Obsidian CSS variables rather than hard-coding
-element styles, so reading view, live preview, graph, Canvas, callouts, tables,
-tasks and most community plugins work untouched. Derived tints use `color-mix`,
-which needs Chromium 111 or newer; Obsidian 1.5 and above ships well past that.
+Obsidian 1.5 or newer. Derived tints use `color-mix`, which needs Chromium 111;
+Obsidian 1.5 ships well past that.
+
+Because the theme overrides documented CSS variables rather than hard-coding
+element styles, reading view, live preview, graph, Canvas, callouts, tables,
+tasks and most community plugins work out of the box. Plugins that ship their
+own colours can be pulled back into the palette with a snippet referencing
+`var(--term-fg)` and friends.
+
+## Contributing
+
+Issues and pull requests are welcome. If you are reporting something visual, a
+screenshot and your phosphor / toggle settings help a lot.
+
+If you add or change a colour, check it against the surface it sits on before
+opening the PR. The floors the theme holds to are 7:1 for body text, 4.5:1 for
+muted text and UI, and 3:1 for faint text and guides.
+
+## Credits
+
+Built on the variable-driven, content-first approach
+[Minimal](https://github.com/kepano/obsidian-minimal) popularised. Effect
+vocabulary borrowed from [cool-retro-term](https://github.com/Swordfish90/cool-retro-term).
+Structural cues from lazygit, btop and ranger.
 
 ## License
 
