@@ -3,6 +3,19 @@
 All notable changes to Terminal. This file is the engineering record; the
 [README](README.md) is the user-facing description.
 
+## 2.0.2
+
+The caret after the note title was `\2588` FULL BLOCK at `0.78em` of the title,
+so on the green palette it was ~19px of `#5cff9e` (plus the `terminal-glow`
+bloom, which reaches a pseudo-element because `text-shadow` inherits) switching
+between opacity 1 and 0 every 1.1s. Too much lit area next to the text to be
+flashing.
+
+It is an underscore now. Same `--term-fg-bright`, same bloom, same hard
+`steps(1)` 1.1s switch, a fraction of the ink. The `0.78em` override went with
+the block: the title face is monospace, so at 1em the underscore is exactly one
+cell wide, where a terminal would put the cursor.
+
 ## 2.0.1
 
 File names in the file explorer sat about 2ch right of the folder names beside

@@ -1093,13 +1093,18 @@ body.terminal-block-caret .cm-editor .cm-cursor.cm-cursor-secondary {
   border-left-color: var(--term-fg-dim);
 }
 
-/* Blinking block after the note title. Tied to the caret toggle now that
-   the heading-prompt toggle is gone. */
+/* Blinking underscore after the note title. Tied to the caret toggle now that
+   the heading-prompt toggle is gone. A full block at this size was a lot of lit
+   area to put next to the text and flash on and off; an underscore keeps the
+   phosphor and the hard 1.1s switch but carries a fraction of the ink.
+
+   No font-size override, unlike the block it replaced: the title face is
+   monospace, so 1em makes the underscore exactly one cell wide, which is where
+   a terminal would put the cursor. */
 body.terminal-block-caret .inline-title::after {
-  content: "\2588";
-  margin-left: 0.18em;
+  content: "_";
+  margin-left: 0.06em;
   color: var(--term-fg-bright);
-  font-size: 0.78em;
   animation: term-blink 1.1s steps(1) infinite;
 }
 @keyframes term-blink {
