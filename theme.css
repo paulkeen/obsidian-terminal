@@ -877,9 +877,28 @@ body.terminal-tree-glyphs .nav-folder.is-collapsed > .nav-folder-title .collapse
   color: var(--nav-collapse-icon-color-collapsed);
 }
 
-/* Leaf files get a dim bullet so the tree has a visible spine. */
-body.terminal-tree-glyphs .nav-file-title-content::before {
-  content: "\00B7\0020";
+/* Leaf files get a dim bullet so the tree has a visible spine. The bullet has
+   to sit in the same gutter the folder triangle uses, not inline in front of
+   the filename. Obsidian positions .tree-item-icon absolutely at
+   -(--size-4-5) with a (--size-4-4) box, so the icon costs the row no width
+   and a folder name and a file name at the same depth start at the same x.
+   Prefixing the filename with "\00B7\0020" spent two characters of that row,
+   which pushed every file ~2ch right of its sibling folders and made a run of
+   files read as children of the last folder above them.
+
+   So: same box, same offset, and a matching positive end margin so the three
+   margins net to zero and the filename stays where Obsidian put it. Hung off
+   the row rather than off .nav-file-title-content, because that element is
+   overflow: hidden and would clip anything reaching into the gutter. */
+body.terminal-tree-glyphs .nav-file-title::before {
+  content: "\00B7";
+  flex: 0 0 auto;
+  width: var(--size-4-4);
+  margin-inline-start: calc(-1 * var(--size-4-5));
+  margin-inline-end: calc(var(--size-4-5) - var(--size-4-4));
+  text-align: center;
+  font-family: var(--term-mono-font);
+  line-height: inherit;
   color: var(--term-fg-faint);
 }
 

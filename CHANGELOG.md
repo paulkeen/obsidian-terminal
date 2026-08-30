@@ -3,6 +3,21 @@
 All notable changes to Terminal. This file is the engineering record; the
 [README](README.md) is the user-facing description.
 
+## 2.0.1
+
+File names in the file explorer sat about 2ch right of the folder names beside
+them, so a run of files under a folder read as that folder's children. Cause:
+the leaf bullet was inline content on `.nav-file-title-content`, and the two
+characters it added were laid out in the row. Obsidian's own collapse arrow is
+`position: absolute` in the gutter and costs the row nothing, which is why
+folders and files line up in vanilla.
+
+The bullet is now hung off the row itself in that same gutter: a
+`var(--size-4-4)` box at `calc(-1 * var(--size-4-5))`, with a matching positive
+end margin so the three margins net to zero. File names land on their sibling
+folders' names exactly, and the bullets land in the arrow column. Row height
+and baselines are untouched.
+
 ## 2.0.0
 
 The v1 CRT overlay was `position: fixed; inset: 0` at `z-index: 9999`, so it
