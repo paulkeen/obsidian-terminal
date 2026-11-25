@@ -193,9 +193,9 @@ settings:
   -
     id: --term-scanline-opacity
     title: Scanline intensity
-    description: Additive white lines. Even the maximum costs under 1 point of contrast.
+    description: Additive white lines, so they lift text and ground together. Body text stays above 7:1 even at the maximum.
     type: variable-number-slider
-    default: 0.045
+    default: 0.06
     min: 0
     max: 0.14
     step: 0.005
@@ -388,7 +388,7 @@ body {
   --term-display-font: 'Departure Mono', 'Monaspace Krypton', 'Martian Mono', var(--term-mono-font);
   --term-body-size: 16px;
   --term-radius: 0px;
-  --term-scanline-opacity: 0.045;
+  --term-scanline-opacity: 0.06;
   --term-vignette: 0.12;
 
   /* base ramp. v1 collapsed 20/25 and 30/35 onto the same two values, which

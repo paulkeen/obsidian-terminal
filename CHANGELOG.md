@@ -3,6 +3,18 @@
 All notable changes to Terminal. This file is the engineering record; the
 [README](README.md) is the user-facing description.
 
+## 2.2.1
+
+Scanlines default to `0.06` instead of `0.045`. On the 2.1 slate grounds the
+same opacity showed less than it did on near-black, and the raster read as
+barely there. At `0.06` each line is 1.15:1 against the ground on green
+(was 1.11:1), and body text on a line row stays at 11.1:1.
+
+The Style Settings description said even the maximum costs under 1 point of
+contrast. It doesn't: on the current dark palettes the default costs about
+1.4 points and the `0.14` maximum about 3.6 to 4.3. Body text still clears
+7:1 at the maximum, which is what the description now says.
+
 ## 2.2.0
 
 - **Ruled headings in the editor.** The h1/h2/h3 rules were scoped to
