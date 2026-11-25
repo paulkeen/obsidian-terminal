@@ -3,6 +3,32 @@
 All notable changes to Terminal. This file is the engineering record; the
 [README](README.md) is the user-facing description.
 
+## 2.2.0
+
+- **Ruled headings in the editor.** The h1/h2/h3 rules were scoped to
+  `.markdown-rendered`, so they only appeared in reading view, never in
+  Live Preview or source mode. A CodeMirror line can't be a flex container
+  without breaking wrapping inside spans, so the editor rule is an
+  inline-block `100vw` wide with a `-100vw` end margin. It advances the line
+  by its `0.65em` start margin only, never wraps, and `overflow-x: clip`
+  trims it at the column edge.
+- **Highlight contrast.** `==highlight==` text was 5.3:1 on every dark
+  palette (accent text on a 32% accent tint), against a 7:1 floor. The tint
+  is now 20%: 7.3 to 10.1:1 dark. Light mode was 4.2 to 4.5:1 for the same
+  reason; it now draws highlighted text in `--term-fg` (8.7 to 9.4:1) via a
+  new `--term-highlight-fg`.
+- **Amber, cyan and paper-white dark** get the 2.1.0 green treatment. Amber
+  is on warm charcoal with warm-neutral body text (`#ddd3c3`, 11.7:1), cyan
+  is on a ~216° blue slate with cool-neutral body text (`#c8d5db`, 11.4:1),
+  and both get bright-white bold and h1-only bloom. Paper-white keeps its
+  text and only flips the grounds so the sidebars sit darker than the note.
+  Every tier clears 7 / 4.5 / 3 on bg, bg-alt and bg-raised.
+- **Reverse-video active file.** The open file in the explorer is a solid
+  `--term-fg-bright` bar with `--term-bg` text, as ranger and lazygit mark
+  the selected row (11.8 to 18.6:1). It is set through Obsidian's nav
+  variables as well as directly, because Obsidian's hover rule outranks a
+  plain selector but reads those variables.
+
 ## 2.1.0
 
 Green dark read as a wall of green on black. Measured, that was two separate

@@ -248,28 +248,35 @@ body.theme-dark.terminal-green {
 
 /* --- dark: amber (P3) ----------------------------------------------------- */
 body.theme-dark.terminal-amber {
-  --term-fg-bold: var(--term-fg-bright);  --term-glow-minor: var(--term-glow);
-  --term-bg: #0f0c07;  --term-bg-alt: #131009;  --term-bg-raised: #1a160f;
-  --term-border: #2c2417;  --term-border-hi: #4a3f26;
-  --term-fg: #f0cf94;  --term-fg-bright: #ffc866;  --term-fg-dim: #c9a267;  --term-fg-faint: #8f7448;  --term-fg-dim-base: #c9a267;
-  --term-glow: rgba(255, 200, 102, 0.45);
-  --accent-h: 38; --accent-s: 100%; --accent-l: 70%;
+  /* Same treatment as green: warm-charcoal ground, sidebars darker than the
+     note, warm-neutral body text, amber kept for signal. */
+  --term-bg: #14110e;  --term-bg-alt: #0f0d0a;  --term-bg-raised: #221c16;
+  --term-border: #2f2820;  --term-border-hi: #4d4232;
+  --term-fg: #ddd3c3;  --term-fg-bright: #ffc35c;  --term-fg-dim: #aa9d89;  --term-fg-faint: #7d705e;  --term-fg-dim-base: #aa9d89;
+  --term-fg-bold: #f6efe3;
+  --term-glow: rgba(255, 195, 92, 0.45);
+  --term-glow-minor: transparent;
+  --accent-h: 38; --accent-s: 100%; --accent-l: 68%;
 }
 
 /* --- dark: cyan ----------------------------------------------------------- */
 body.theme-dark.terminal-cyan {
-  --term-fg-bold: var(--term-fg-bright);  --term-glow-minor: var(--term-glow);
-  --term-bg: #080c0d;  --term-bg-alt: #0c1112;  --term-bg-raised: #121818;
-  --term-border: #1c2627;  --term-border-hi: #2f4a4d;
-  --term-fg: #a2dfe2;  --term-fg-bright: #4ff2f2;  --term-fg-dim: #79bcc0;  --term-fg-faint: #568c90;  --term-fg-dim-base: #79bcc0;
-  --term-glow: rgba(79, 242, 242, 0.42);
-  --accent-h: 180; --accent-s: 87%; --accent-l: 63%;
+  /* Cyan on a blue slate (~216 deg), so the accent has hue distance from the
+     ground; cool-neutral body text, cyan kept for signal. */
+  --term-bg: #0e1218;  --term-bg-alt: #0a0d12;  --term-bg-raised: #161c25;
+  --term-border: #212b37;  --term-border-hi: #344a55;
+  --term-fg: #c8d5db;  --term-fg-bright: #52eaea;  --term-fg-dim: #8ea3ad;  --term-fg-faint: #637680;  --term-fg-dim-base: #8ea3ad;
+  --term-fg-bold: #e6f0f4;
+  --term-glow: rgba(82, 234, 234, 0.42);
+  --term-glow-minor: transparent;
+  --accent-h: 180; --accent-s: 78%; --accent-l: 62%;
 }
 
 /* --- dark: paper-white (VT220) ------------------------------------------- */
 body.theme-dark.terminal-white {
+  /* Already neutral; only the grounds flip so the sidebars sit darker. */
   --term-fg-bold: var(--term-fg-bright);  --term-glow-minor: var(--term-glow);
-  --term-bg: #0d0f10;  --term-bg-alt: #111314;  --term-bg-raised: #171a1b;
+  --term-bg: #111314;  --term-bg-alt: #0c0e0f;  --term-bg-raised: #1a1d1e;
   --term-border: #262a2c;  --term-border-hi: #414749;
   --term-fg: #dbe2dd;  --term-fg-bright: #ffffff;  --term-fg-dim: #a8b2ab;  --term-fg-faint: #7b857e;  --term-fg-dim-base: #a8b2ab;
   --term-glow: rgba(255, 255, 255, 0.32);
@@ -323,7 +330,11 @@ body {
   --term-tint-2: color-mix(in srgb, var(--term-fg) 8%, transparent);
   --term-tint-3: color-mix(in srgb, var(--term-fg) 14%, transparent);
   --term-selection: color-mix(in srgb, var(--term-fg-bright) 22%, transparent);
-  --term-highlight: color-mix(in srgb, var(--term-fg-bright) 32%, transparent);
+  /* 20%, not 32%: at 32% the highlighted text fell to 5.3:1 on every dark
+     palette. Light mode sets the text to --term-fg (a tint of the dark accent
+     under the dark accent tops out near 5.5:1). */
+  --term-highlight: color-mix(in srgb, var(--term-fg-bright) 20%, transparent);
+  --term-highlight-fg: var(--term-fg-bright);
 
   /* Bold colour and the bloom on secondary elements (h2/h3, links, bold).
      Palettes that want bold as "bright white" or bloom on h1 only override
@@ -343,6 +354,7 @@ body {
   --term-ansi-violet:  #c9a0ff;
 }
 body.theme-light {
+  --term-highlight-fg: var(--term-fg);
   --term-ansi-red:     #a32718;
   --term-ansi-yellow:  #6d5202;
   --term-ansi-orange:  #8a4b06;
@@ -730,7 +742,7 @@ input[type="checkbox"] { border-width: 1px; }
 /* --- highlight ==text== -------------------------------------------------- */
 .markdown-rendered mark, .cm-highlight {
   background: var(--term-highlight);
-  color: var(--term-fg-bright);
+  color: var(--term-highlight-fg);
   border-radius: var(--term-radius);
 }
 
@@ -918,6 +930,33 @@ body.terminal-tree-glyphs .nav-file-title::before {
   color: var(--term-fg-faint);
 }
 
+/* Reverse video on the open file, the way ranger and lazygit mark the
+   selected row: a solid phosphor bar with ground-coloured text. One strong
+   focal point in an otherwise neutral tree, and it does not depend on hue,
+   so it survives colour-blindness and the high-contrast toggle. */
+/* Set through Obsidian's own nav variables as well as directly: its hover
+   rule (body:not(.is-grabbing) .tree-item-self.is-clickable:hover) outranks
+   any plain selector here, but it reads these variables, so scoping them to
+   the active row keeps the bar solid under the pointer. */
+.nav-file-title.is-active,
+.tree-item-self.nav-file-title.is-active {
+  --nav-item-background-active: var(--term-fg-bright);
+  --nav-item-background-hover: var(--term-fg-bright);
+  --nav-item-color-active: var(--term-bg);
+  --nav-item-color-hover: var(--term-bg);
+  background-color: var(--term-fg-bright);
+  color: var(--term-bg);
+  text-shadow: none;
+}
+.nav-file-title.is-active .nav-file-tag {
+  color: var(--term-bg);
+  border-color: var(--term-bg);
+  background: transparent;
+}
+body.terminal-tree-glyphs .nav-file-title.is-active::before {
+  color: var(--term-bg);
+}
+
 /* --------------------------------------------------------------------------
    6c. Ruled headings. Replaces v1's "#" / "##" prompts, which every theme in
    this genre already had. h1 gets a double rule, h2 single, h3 dashed.
@@ -944,6 +983,37 @@ body.terminal-rule-headings .markdown-rendered h2::after {
   border-top: 1px solid var(--term-border-hi);
 }
 body.terminal-rule-headings .markdown-rendered h3::after {
+  border-top: 1px dashed var(--term-border);
+}
+
+/* The same rules in Live Preview and source mode. A CodeMirror line cannot
+   be a flex container (its text would stop wrapping inside spans), so the
+   rule is an inline-block 100vw wide with a -100vw end margin: it advances
+   the line by its 0.65em start margin only, so it never wraps, and
+   overflow-x: clip trims it at the column edge. The gutter toggle uses
+   ::before on the same lines, so the two do not collide. */
+body.terminal-rule-headings .markdown-source-view.mod-cm6 .cm-line.HyperMD-header-1,
+body.terminal-rule-headings .markdown-source-view.mod-cm6 .cm-line.HyperMD-header-2,
+body.terminal-rule-headings .markdown-source-view.mod-cm6 .cm-line.HyperMD-header-3 {
+  overflow-x: clip;
+}
+body.terminal-rule-headings .markdown-source-view.mod-cm6 .cm-line.HyperMD-header-1::after,
+body.terminal-rule-headings .markdown-source-view.mod-cm6 .cm-line.HyperMD-header-2::after,
+body.terminal-rule-headings .markdown-source-view.mod-cm6 .cm-line.HyperMD-header-3::after {
+  content: "";
+  display: inline-block;
+  width: 100vw;
+  margin-inline: 0.65em -100vw;
+  vertical-align: middle;
+  pointer-events: none;
+}
+body.terminal-rule-headings .markdown-source-view.mod-cm6 .cm-line.HyperMD-header-1::after {
+  border-top: 3px double var(--term-border-hi);
+}
+body.terminal-rule-headings .markdown-source-view.mod-cm6 .cm-line.HyperMD-header-2::after {
+  border-top: 1px solid var(--term-border-hi);
+}
+body.terminal-rule-headings .markdown-source-view.mod-cm6 .cm-line.HyperMD-header-3::after {
   border-top: 1px dashed var(--term-border);
 }
 
