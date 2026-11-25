@@ -34,6 +34,12 @@ titles notched into the border, tree glyphs, segmented status lines, box-drawing
 junctions in tables. That is what Terminal is built from. The CRT effects are
 here too, but they are seasoning rather than the meal.
 
+**The phosphor is for signal, not for everything.** Body text is a neutral
+tinted toward the phosphor's hue, on a lifted slate or charcoal ground rather
+than black. The saturated colour is kept for headings, links, the cursor and
+the open file, so it reads as emphasis instead of covering every lit pixel.
+Bold renders bright white, the way an ANSI terminal renders it.
+
 **It is legible.** Every text colour is measured against the surface it actually
 sits on, in all eight palettes. Body text clears 7:1 and muted text clears
 4.5:1, so the sidebar is readable with the backlight most of the way down. The
@@ -55,8 +61,12 @@ than an afterthought.
   the title notched into the top rule. The frame brightens on the focused pane.
 - **Tree glyphs.** `▾` / `▸` text triangles instead of rotating chevrons, with a
   dim `·` spine on files.
+- **Reverse-video selection.** The open file in the explorer is a solid
+  phosphor bar with dark text, the way ranger and lazygit mark the selected
+  row. It does not rely on hue, so it holds up for colour-blind readers.
 - **Ruled headings.** Each heading trails a rule to the edge of the column:
-  double for `h1`, solid for `h2`, dashed for `h3`.
+  double for `h1`, solid for `h2`, dashed for `h3`. In reading view, Live
+  Preview and source mode.
 - **Segmented status line**, with optional Nerd Font powerline separators.
 - **Box-drawing tables.** Borders on every cell edge, so intersections read
   as `─┼─`.
@@ -66,12 +76,14 @@ than an afterthought.
 
 | | Dark | Light |
 |---|---|---|
-| **Green** | P1 phosphor on near-black | dot-matrix printout |
-| **Amber** | P3 phosphor | tractor-feed paper |
-| **Cyan** | cold CRT | blueprint |
+| **Green** | P1 phosphor on cool slate | dot-matrix printout |
+| **Amber** | P3 phosphor on warm charcoal | tractor-feed paper |
+| **Cyan** | cold CRT on blue slate | blueprint |
 | **Paper-white** | VT220 | plain laser print |
 
-Eight palettes, all contrast-validated. ANSI-16 colour is used only where a
+In dark mode the sidebars sit a step darker than the note, a bezel around the
+lit screen. Eight palettes, all contrast-validated, including highlighted
+text. ANSI-16 colour is used only where a
 distinction carries meaning the monochrome ramp cannot: callout types, search
 matches, frontmatter keys, maths, unresolved links, errors.
 
@@ -79,7 +91,9 @@ matches, frontmatter keys, maths, unresolved links, errors.
 
 - **Additive scanlines** over the note surface only, never the chrome.
 - **Tube vignette** confined to the note pane.
-- **Phosphor bloom** on headings, links and accents.
+- **Phosphor bloom** on the `h1` and the note title only. Bloom only reads as
+  bloom when it is rare. Paper-white also blooms `h2`, `h3`, links and bold;
+  light mode never blooms.
 - **Convergence error** *(off by default)*: a sub-pixel red/cyan split on
   headings, like a misaligned electron gun.
 - **Phosphor persistence** *(on by default)*: hover and selection colours decay
@@ -129,7 +143,7 @@ All under **Settings → Style Settings → Terminal**.
 | Powerline separators | off | needs a Nerd Font |
 | Line-number gutter | off | |
 | Scanlines | on | intensity slider |
-| Phosphor bloom | on | |
+| Phosphor bloom | on | `h1` and note title |
 | Convergence error | off | |
 | Phosphor persistence | on | |
 | Block cursor | on | |
@@ -164,10 +178,29 @@ is the paid alternative.
 
 ## Customising
 
-The palette is nine variables per scheme (`--term-bg`, `--term-fg`,
-`--term-fg-dim`, and so on) at the top of `theme.css`. Change those and
-everything recolours, including the hover, stripe and selection tints, which are
-`color-mix` derivations rather than hard-coded values.
+Each palette is a short block of variables at the top of `theme.css`. Change
+those and everything recolours, including the hover, stripe, selection and
+highlight tints, which are `color-mix` derivations rather than hard-coded
+values.
+
+| Variable | Role | Floor |
+|---|---|---|
+| `--term-bg` | note surface | |
+| `--term-bg-alt` | sidebars, status bar, title bar | |
+| `--term-bg-raised` | code blocks, callouts, hovers | |
+| `--term-border` / `--term-border-hi` | hairlines / frames and focus rings | |
+| `--term-fg` | body text | 7:1 |
+| `--term-fg-bright` | headings, links, accents, the selection bar | 4.5:1 |
+| `--term-fg-bold` | bold text | 7:1 |
+| `--term-fg-dim` | muted text, nav items | 4.5:1 |
+| `--term-fg-faint` | faint text, guides | 3:1 |
+| `--term-glow` | bloom on `h1` and the note title | |
+| `--term-glow-minor` | bloom on `h2`, `h3`, links, bold (`transparent` to turn off) | |
+| `--term-highlight-fg` | text colour inside `==highlights==` | 7:1 |
+
+`--term-fg-bold`, `--term-glow-minor` and `--term-highlight-fg` default to
+`--term-fg-bright`, `--term-glow` and `--term-fg-bright`, so a palette that
+leaves them out gets the all-accent look.
 
 Below that, one mapping layer translates them onto Obsidian's semantic variables
 at `body` scope, so both colour modes inherit the whole theme.
