@@ -232,15 +232,23 @@ settings:
 /* --- dark: green (P1), the default ---------------------------------------- */
 body.theme-dark,
 body.theme-dark.terminal-green {
-  --term-bg: #0a0c0b;  --term-bg-alt: #0e1110;  --term-bg-raised: #141816;
-  --term-border: #202623;  --term-border-hi: #374c42;
-  --term-fg: #9ce8ac;  --term-fg-bright: #5cff9e;  --term-fg-dim: #7fc294;  --term-fg-faint: #5a8869;  --term-fg-dim-base: #7fc294;
-  --term-glow: rgba(92, 255, 158, 0.45);
-  --accent-h: 149; --accent-s: 100%; --accent-l: 68%;
+  /* Phosphor on smoked glass. The ground is a cool slate rather than black,
+     so the green has hue distance from it, and the sidebars sit darker than
+     the note (bezel round a lit screen). Body text is a green-cast neutral:
+     saturated green is reserved for signal (headings, links, cursor, active
+     item), so it reads as accent instead of covering every lit pixel. */
+  --term-bg: #0e1315;  --term-bg-alt: #0a0e10;  --term-bg-raised: #162024;
+  --term-border: #223036;  --term-border-hi: #35504f;
+  --term-fg: #c9d6cf;  --term-fg-bright: #62f5a0;  --term-fg-dim: #8ea69b;  --term-fg-faint: #62786f;  --term-fg-dim-base: #8ea69b;
+  --term-fg-bold: #e8f2ec;
+  --term-glow: rgba(98, 245, 160, 0.45);
+  --term-glow-minor: transparent;
+  --accent-h: 145; --accent-s: 88%; --accent-l: 67%;
 }
 
 /* --- dark: amber (P3) ----------------------------------------------------- */
 body.theme-dark.terminal-amber {
+  --term-fg-bold: var(--term-fg-bright);  --term-glow-minor: var(--term-glow);
   --term-bg: #0f0c07;  --term-bg-alt: #131009;  --term-bg-raised: #1a160f;
   --term-border: #2c2417;  --term-border-hi: #4a3f26;
   --term-fg: #f0cf94;  --term-fg-bright: #ffc866;  --term-fg-dim: #c9a267;  --term-fg-faint: #8f7448;  --term-fg-dim-base: #c9a267;
@@ -250,6 +258,7 @@ body.theme-dark.terminal-amber {
 
 /* --- dark: cyan ----------------------------------------------------------- */
 body.theme-dark.terminal-cyan {
+  --term-fg-bold: var(--term-fg-bright);  --term-glow-minor: var(--term-glow);
   --term-bg: #080c0d;  --term-bg-alt: #0c1112;  --term-bg-raised: #121818;
   --term-border: #1c2627;  --term-border-hi: #2f4a4d;
   --term-fg: #a2dfe2;  --term-fg-bright: #4ff2f2;  --term-fg-dim: #79bcc0;  --term-fg-faint: #568c90;  --term-fg-dim-base: #79bcc0;
@@ -259,6 +268,7 @@ body.theme-dark.terminal-cyan {
 
 /* --- dark: paper-white (VT220) ------------------------------------------- */
 body.theme-dark.terminal-white {
+  --term-fg-bold: var(--term-fg-bright);  --term-glow-minor: var(--term-glow);
   --term-bg: #0d0f10;  --term-bg-alt: #111314;  --term-bg-raised: #171a1b;
   --term-border: #262a2c;  --term-border-hi: #414749;
   --term-fg: #dbe2dd;  --term-fg-bright: #ffffff;  --term-fg-dim: #a8b2ab;  --term-fg-faint: #7b857e;  --term-fg-dim-base: #a8b2ab;
@@ -314,6 +324,12 @@ body {
   --term-tint-3: color-mix(in srgb, var(--term-fg) 14%, transparent);
   --term-selection: color-mix(in srgb, var(--term-fg-bright) 22%, transparent);
   --term-highlight: color-mix(in srgb, var(--term-fg-bright) 32%, transparent);
+
+  /* Bold colour and the bloom on secondary elements (h2/h3, links, bold).
+     Palettes that want bold as "bright white" or bloom on h1 only override
+     these; the rest keep the original behaviour. */
+  --term-fg-bold: var(--term-fg-bright);
+  --term-glow-minor: var(--term-glow);
 
   /* ANSI-16 semantics. Used only where Obsidian already expects meaning
      (callout types, error states), so the theme reads monochrome but a
@@ -563,7 +579,7 @@ body {
   --font-text-size: var(--term-body-size);
 
   --bold-weight: 700;
-  --bold-color: var(--term-fg-bright);
+  --bold-color: var(--term-fg-bold);
   --italic-color: var(--term-fg);
   --code-size: 0.9em;
   --line-height-normal: 1.6;
@@ -646,7 +662,7 @@ code, .cm-inline-code, .markdown-rendered code {
 }
 .token.inserted { color: var(--term-fg-bright); }
 .token.deleted  { color: var(--term-ansi-red); }
-.token.bold     { font-weight: 700; color: var(--term-fg-bright); }
+.token.bold     { font-weight: 700; color: var(--term-fg-bold); }
 
 /* --- blockquotes: a left rule, like a quoted diff ------------------------ */
 .markdown-rendered blockquote {
@@ -1040,17 +1056,22 @@ body.terminal-scanlines .mod-root .workspace-leaf-content::after {
 }
 
 /* --- phosphor bloom ------------------------------------------------------ */
-body.terminal-glow .markdown-rendered h1,
 body.terminal-glow .markdown-rendered h2,
 body.terminal-glow .markdown-rendered h3,
 body.terminal-glow .cm-header,
-body.terminal-glow .inline-title,
 body.terminal-glow .markdown-rendered a,
 body.terminal-glow .cm-link,
 body.terminal-glow .cm-url,
 body.terminal-glow a.internal-link,
 body.terminal-glow strong,
 body.terminal-glow .cm-strong {
+  text-shadow: 0 0 7px var(--term-glow-minor);
+}
+/* Full bloom where the eye lands first. Bloom only reads as bloom when it
+   is rare, so palettes can switch the secondary set off via --term-glow-minor. */
+body.terminal-glow .markdown-rendered h1,
+body.terminal-glow .cm-header-1,
+body.terminal-glow .inline-title {
   text-shadow: 0 0 7px var(--term-glow);
 }
 /* No bloom on body text. v1 blurred every paragraph, which cost acuity for

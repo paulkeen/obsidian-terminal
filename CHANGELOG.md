@@ -3,6 +3,35 @@
 All notable changes to Terminal. This file is the engineering record; the
 [README](README.md) is the user-facing description.
 
+## 2.1.0
+
+Green dark read as a wall of green on black. Measured, that was two separate
+problems.
+
+Every text tier was saturated green: body `#9ce8ac` at 62% saturation, with
+fg-bright only 1.12x its luminance. Nearly every lit pixel carried the
+phosphor hue, so headings, links and bold had nothing to stand out against.
+And the three grounds sat 1.03 to 1.09:1 apart, below what the eye separates,
+so note, sidebar and code block merged into one black field.
+
+Changes, green dark only:
+
+1. Body text is a green-cast neutral, `#c9d6cf` (14% saturation, 12.5:1).
+   Muted `#8ea69b` (7.2:1) and faint `#62786f` (3.95:1) follow it. Saturated
+   green, `#62f5a0`, is now reserved for headings, links, cursor and the
+   active item. The file tree goes neutral as a side effect.
+2. The ground is a cool slate at about 197° instead of near-black, and the
+   sidebars now sit darker than the note (`#0a0e10` vs `#0e1315`), with
+   raised surfaces at `#162024`. Adjacent surfaces are 1.13 to 1.17:1 apart.
+3. Bold is "bright white", `#e8f2ec` (16.3:1), as ANSI terminals render it,
+   via a new `--term-fg-bold` variable.
+4. Bloom is limited to h1 and the inline title. h2, h3, links and bold use a
+   new `--term-glow-minor`, which green dark sets to `transparent`.
+
+Both new variables default to the old behaviour, so amber, cyan, paper-white
+and all light palettes render exactly as before. Every tier was checked
+against bg, bg-alt and bg-raised and clears the 7 / 4.5 / 3 floors.
+
 ## 2.0.2
 
 The caret after the note title was `\2588` FULL BLOCK at `0.78em` of the title,
